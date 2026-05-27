@@ -3,37 +3,36 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Learning.Faster | Guide visuali per imparare tecnologie moderne</title>
-  <meta name="description" content="Learning.Faster raccoglie guide visuali e pagine di studio per capire in fretta stack, runtime e piattaforme moderne." />
+  <title>Learning.Faster</title>
+  <meta name="description" content="Homepage minimale di Learning.Faster con 1 topic pubblicato." />
   <meta name="robots" content="index,follow" />
-  <meta name="theme-color" content="#6d28d9" />
+  <meta name="theme-color" content="#111827" />
   <link rel="canonical" href="https://martinabruni.github.io/Learning.Faster/" />
   <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml" />
   <meta property="og:type" content="website" />
   <meta property="og:locale" content="it_IT" />
   <meta property="og:site_name" content="Learning.Faster" />
   <meta property="og:title" content="Learning.Faster" />
-  <meta property="og:description" content="Una piccola knowledge base statica per pubblicare guide visuali su stack e piattaforme moderne." />
+  <meta property="og:description" content="Homepage minimale di Learning.Faster con 1 topic pubblicato." />
   <meta property="og:url" content="https://martinabruni.github.io/Learning.Faster/" />
   <meta name="twitter:card" content="summary" />
   <meta name="twitter:title" content="Learning.Faster" />
-  <meta name="twitter:description" content="Guide visuali statiche, GitHub Pages-ready, per imparare tecnologie moderne più velocemente." />
+  <meta name="twitter:description" content="Homepage minimale di Learning.Faster con 1 topic pubblicato." />
   <style>
     :root {
-      --bg: #f6f8fc;
-      --surface: rgba(255, 255, 255, 0.86);
-      --surface-strong: #ffffff;
-      --text: #172033;
-      --muted: #64748b;
-      --primary: #6d28d9;
-      --primary-2: #2563eb;
-      --primary-soft: rgba(109, 40, 217, 0.1);
-      --border: rgba(148, 163, 184, 0.28);
-      --shadow: 0 24px 70px rgba(15, 23, 42, 0.1);
-      --shadow-soft: 0 12px 32px rgba(15, 23, 42, 0.08);
+      --bg: #f5f5f4;
+      --surface: #ffffff;
+      --surface-alt: #f8fafc;
+      --text: #0f172a;
+      --muted: #475569;
+      --border: #e2e8f0;
+      --accent: #111827;
+      --accent-soft: #f1f5f9;
+      --shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
       --radius-lg: 28px;
-      --radius-md: 22px;
-      --radius-sm: 16px;
+      --radius-md: 20px;
+      --radius-sm: 14px;
+      --page: min(1040px, calc(100% - 32px));
       --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
 
@@ -41,15 +40,18 @@
       box-sizing: border-box;
     }
 
+    html {
+      scroll-behavior: smooth;
+    }
+
     body {
       margin: 0;
       font-family: var(--sans);
       color: var(--text);
       background:
-        radial-gradient(circle at top left, rgba(109, 40, 217, 0.18), transparent 30rem),
-        radial-gradient(circle at top right, rgba(37, 99, 235, 0.12), transparent 28rem),
-        linear-gradient(180deg, #f8fafc 0%, var(--bg) 40%, #eef2ff 100%);
-      line-height: 1.6;
+        radial-gradient(circle at top, rgba(15, 23, 42, 0.05), transparent 28rem),
+        linear-gradient(180deg, #ffffff 0%, var(--bg) 100%);
+      line-height: 1.5;
     }
 
     a {
@@ -57,393 +59,190 @@
     }
 
     .page {
-      width: min(1180px, calc(100% - 36px));
+      width: var(--page);
       margin: 0 auto;
     }
 
-    .topbar {
-      position: sticky;
-      top: 0;
-      z-index: 10;
-      backdrop-filter: blur(18px);
-      background: rgba(248, 250, 252, 0.82);
-      border-bottom: 1px solid var(--border);
-    }
-
-    .topbar-inner {
-      width: min(1180px, calc(100% - 36px));
-      margin: 0 auto;
-      padding: 14px 0;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 18px;
+    .site-header {
+      padding: 22px 0 0;
     }
 
     .brand {
-      display: flex;
+      display: inline-flex;
       align-items: center;
       gap: 12px;
+      text-decoration: none;
       font-weight: 800;
       letter-spacing: -0.03em;
-      text-decoration: none;
     }
 
     .brand-mark {
       width: 40px;
       height: 40px;
-      border-radius: 14px;
-      background: linear-gradient(135deg, var(--primary), var(--primary-2));
-      color: #fff;
+      border-radius: 12px;
       display: grid;
       place-items: center;
-      font-weight: 900;
-      box-shadow: 0 12px 30px rgba(109, 40, 217, 0.35);
+      background: var(--accent);
+      color: #ffffff;
+      font-size: 0.95rem;
     }
 
-    .nav {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-      gap: 6px;
-    }
-
-    .nav a {
-      text-decoration: none;
-      font-size: 0.9rem;
-      color: #475569;
-      padding: 8px 11px;
-      border-radius: 999px;
-    }
-
-    .nav a:hover,
-    .nav a:focus-visible {
-      background: var(--primary-soft);
-      color: #4c1d95;
-      outline: none;
+    main {
+      padding: 52px 0 72px;
     }
 
     .hero {
-      padding: 76px 0 46px;
       display: grid;
-      grid-template-columns: 1.1fr 0.9fr;
-      gap: 30px;
-      align-items: center;
+      gap: 18px;
+      margin-bottom: 40px;
     }
 
-    .eyebrow {
+    .hero-kicker,
+    .topic-slug {
       display: inline-flex;
       align-items: center;
-      gap: 10px;
-      padding: 8px 13px;
+      width: fit-content;
+      padding: 7px 11px;
       border-radius: 999px;
-      background: var(--primary-soft);
-      border: 1px solid rgba(109, 40, 217, 0.18);
-      color: #5b21b6;
+      background: var(--accent-soft);
+      color: var(--muted);
+      font-size: 0.8rem;
       font-weight: 700;
-      font-size: 0.9rem;
-      margin-bottom: 18px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
     }
 
     h1,
-    h2,
-    h3 {
+    h2 {
       margin: 0;
-      line-height: 1.08;
-      letter-spacing: -0.045em;
+      letter-spacing: -0.05em;
+      line-height: 1;
     }
 
     h1 {
-      font-size: clamp(3rem, 8vw, 6rem);
-      max-width: 720px;
+      font-size: clamp(2.8rem, 7vw, 5.4rem);
+      max-width: 10ch;
     }
 
-    h2 {
-      font-size: clamp(2rem, 5vw, 3rem);
+    .hero-copy {
+      max-width: 58ch;
+      color: var(--muted);
+      font-size: 1.05rem;
+      margin: 0;
     }
 
-    .gradient-text {
-      background: linear-gradient(135deg, #4c1d95 0%, #6d28d9 45%, #2563eb 100%);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-    }
-
-    .lead {
-      margin: 22px 0 0;
-      max-width: 720px;
-      color: #475569;
-      font-size: clamp(1.05rem, 2vw, 1.25rem);
-    }
-
-    .hero-actions,
-    .pill-row {
+    .hero-meta {
       display: flex;
       flex-wrap: wrap;
       gap: 12px;
-      margin-top: 28px;
-    }
-
-    .button {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 44px;
-      padding: 0 18px;
-      border-radius: 999px;
-      text-decoration: none;
-      font-weight: 800;
-      border: 1px solid transparent;
-      transition: 180ms ease;
-    }
-
-    .button.primary {
-      background: linear-gradient(135deg, var(--primary), var(--primary-2));
-      color: #fff;
-      box-shadow: 0 14px 35px rgba(37, 99, 235, 0.22);
-    }
-
-    .button.secondary {
-      background: rgba(255, 255, 255, 0.8);
-      border-color: var(--border);
-      color: #334155;
-    }
-
-    .button:hover,
-    .button:focus-visible {
-      transform: translateY(-1px);
-      outline: none;
-    }
-
-    .hero-panel,
-    .card,
-    .footer {
-      border-radius: var(--radius-lg);
-      background: linear-gradient(145deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 252, 0.9));
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow);
-    }
-
-    .hero-panel {
-      padding: 26px;
-    }
-
-    .hero-panel ul {
-      margin: 18px 0 0;
-      padding-left: 18px;
       color: var(--muted);
+      font-size: 0.95rem;
     }
 
-    section {
-      padding: 40px 0;
-    }
-
-    .section-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: end;
-      gap: 22px;
-      margin-bottom: 22px;
-    }
-
-    .section-kicker {
-      color: var(--primary);
-      font-size: 0.82rem;
-      text-transform: uppercase;
-      font-weight: 900;
-      letter-spacing: 0.14em;
-      margin-bottom: 8px;
-    }
-
-    .section-copy {
-      color: var(--muted);
-      max-width: 480px;
-      margin: 0;
-    }
-
-    .grid {
+    .topics-grid {
       display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
       gap: 18px;
     }
 
-    .grid.two {
-      grid-template-columns: repeat(2, 1fr);
+    .topic-card {
+      padding: 22px;
+      border-radius: var(--radius-md);
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      display: grid;
+      gap: 14px;
+      min-height: 220px;
     }
 
-    .grid.three {
-      grid-template-columns: repeat(3, 1fr);
+    .topic-card h2 {
+      font-size: 1.45rem;
     }
 
-    .card {
-      padding: 24px;
-      box-shadow: var(--shadow-soft);
+    .topic-card h2 a {
+      text-decoration: none;
     }
 
-    .card h3 {
-      font-size: 1.3rem;
-      margin-bottom: 10px;
+    .topic-card h2 a:hover,
+    .topic-card h2 a:focus-visible,
+    .topic-link:hover,
+    .topic-link:focus-visible {
+      text-decoration: underline;
+      outline: none;
     }
 
-    .card p {
+    .topic-description {
       margin: 0;
       color: var(--muted);
+      flex: 1;
     }
 
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      border-radius: 999px;
-      padding: 7px 11px;
-      font-size: 0.82rem;
-      font-weight: 800;
-      background: #f1f5f9;
-      color: #334155;
+    .topic-link {
+      text-decoration: none;
+      font-weight: 700;
     }
 
-    .footer {
-      padding: 28px;
-      margin: 18px 0 42px;
-    }
-
-    .footer p {
-      margin: 12px 0 0;
+    .footer-note {
+      margin-top: 28px;
       color: var(--muted);
+      font-size: 0.92rem;
     }
 
-    @media (max-width: 960px) {
-      .hero,
-      .grid.two,
-      .grid.three {
-        grid-template-columns: 1fr;
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.95em;
+    }
+
+    @media (max-width: 640px) {
+      main {
+        padding-top: 36px;
       }
 
-      .section-head,
-      .topbar-inner {
-        align-items: start;
-        flex-direction: column;
+      .topic-card {
+        min-height: unset;
       }
     }
   </style>
 </head>
 <body>
-  <header class="topbar">
-    <div class="topbar-inner">
+  <div class="page">
+    <header class="site-header">
       <a class="brand" href="./" aria-label="Learning.Faster homepage">
-        <div class="brand-mark">LF</div>
+        <span class="brand-mark">LF</span>
         <span>Learning.Faster</span>
       </a>
-      <nav class="nav" aria-label="Navigazione sito">
-        <a href="#guides">Guide</a>
-        <a href="#publishing">Publishing</a>
-      </nav>
-    </div>
-  </header>
+    </header>
 
-  <main class="page">
-    <section class="hero">
-      <div>
-        <div class="eyebrow">GitHub Pages-ready · static-first · semplice da mantenere</div>
-        <h1><span class="gradient-text">Learning.Faster</span><br />impara più in fretta.</h1>
-        <p class="lead">
-          Questo repository ora è strutturato come project site per GitHub Pages: una homepage leggera, URL stabili
-          e guide tematiche pubblicabili direttamente da <strong>main + docs\</strong> senza build step obbligatori.
+    <main>
+      <section class="hero" aria-labelledby="home-title">
+        <span class="hero-kicker">minimal static library</span>
+        <h1 id="home-title">Impara da card, non da rumore.</h1>
+        <p class="hero-copy">
+          Questa homepage e generata automaticamente dai contenuti presenti in <code>docs\topics\</code>.
+          Ogni cartella con <code>index.html</code> diventa una card pubblicata qui dopo il push.
         </p>
-        <div class="hero-actions">
-          <a class="button primary" href="./topics/dotnet10/">Apri la guida .NET 10</a>
-          <a class="button secondary" href="#publishing">Come pubblicarlo</a>
+        <div class="hero-meta">
+          <span>1 topic pubblicato</span>
+          <span>Homepage generata da repository contents</span>
         </div>
-      </div>
+      </section>
 
-      <aside class="hero-panel" aria-label="Sintesi del sito">
-        <h2>Struttura consigliata</h2>
-        <ul>
-          <li>Homepage in <strong>docs\index.html</strong></li>
-          <li>Pagine tematiche in <strong>docs\topics\...</strong></li>
-          <li>Asset condivisi in <strong>docs\assets\</strong></li>
-          <li><strong>.nojekyll</strong> per pubblicare file statici senza build Jekyll</li>
-        </ul>
-      </aside>
-    </section>
-
-    <section id="guides">
-      <div class="section-head">
-        <div>
-          <div class="section-kicker">Guide disponibili</div>
-          <h2>Contenuti già online</h2>
+      <section aria-label="Topics pubblicati">
+        <div class="topics-grid">
+        <article class="topic-card">
+          <p class="topic-slug">dotnet10</p>
+          <h2><a href="./topics/dotnet10/">.NET 10</a></h2>
+          <p class="topic-description">Guida visuale a .NET 10 aggiornata a maggio 2026: runtime, use case, limiti, punti di forza e confronto con Java, Node.js, Python e Go.</p>
+          <a class="topic-link" href="./topics/dotnet10/">Apri topic</a>
+        </article>
         </div>
-        <p class="section-copy">
-          La prima pagina pubblicata resta la guida visuale su .NET 10, mantenuta come sottopagina così il sito può crescere
-          con altre tecnologie senza rifare la struttura.
-        </p>
-      </div>
+      </section>
 
-      <div class="grid two">
-        <article class="card">
-          <h3>.NET 10</h3>
-          <p>
-            Guida visuale in italiano con runtime, use case, evoluzione storica, limiti reali e confronto con Java,
-            Node.js, Python e Go.
-          </p>
-          <div class="pill-row">
-            <span class="pill">LTS</span>
-            <span class="pill">Cloud-native</span>
-            <span class="pill">Confronti architetturali</span>
-          </div>
-          <div class="hero-actions" style="margin-top:18px;">
-            <a class="button primary" href="./topics/dotnet10/">Leggi la guida</a>
-          </div>
-        </article>
-
-        <article class="card">
-          <h3>Pattern per le prossime pagine</h3>
-          <p>
-            Ogni nuova guida può vivere in una cartella dedicata con il suo <code>index.html</code>, mantenendo URL chiari,
-            link relativi e compatibilità immediata con GitHub Pages.
-          </p>
-          <div class="pill-row">
-            <span class="pill">URL stabili</span>
-            <span class="pill">Nessun framework richiesto</span>
-            <span class="pill">Deploy semplice</span>
-          </div>
-        </article>
-      </div>
-    </section>
-
-    <section id="publishing">
-      <div class="section-head">
-        <div>
-          <div class="section-kicker">Publishing</div>
-          <h2>Come renderlo pubblico su GitHub Pages</h2>
-        </div>
-        <p class="section-copy">
-          Per questa repo non serve un workflow custom: GitHub raccomanda la pubblicazione da branch quando non esiste
-          un build process dedicato.
-        </p>
-      </div>
-
-      <div class="grid three">
-        <article class="card">
-          <h3>1. Source</h3>
-          <p>In repository settings, abilita GitHub Pages e seleziona <strong>Deploy from a branch</strong>.</p>
-        </article>
-        <article class="card">
-          <h3>2. Branch</h3>
-          <p>Imposta <strong>main</strong> come branch e <strong>/docs</strong> come folder di pubblicazione.</p>
-        </article>
-        <article class="card">
-          <h3>3. URL</h3>
-          <p>Il sito verrà pubblicato su <strong>https://martinabruni.github.io/Learning.Faster/</strong>.</p>
-        </article>
-      </div>
-    </section>
-
-    <footer class="footer">
-      <h2>Perché questa struttura</h2>
-      <p>
-        È la soluzione più semplice da mantenere oggi: niente branch dedicato, niente build step obbligatorio e nessun lock-in
-        verso un generatore statico finché il contenuto resta HTML/CSS/JS puro.
+      <p class="footer-note">
+        Per aggiungere un nuovo topic, crea <code>docs\topics\nome-topic\index.html</code>.
       </p>
-    </footer>
-  </main>
+    </main>
+  </div>
 </body>
 </html>
