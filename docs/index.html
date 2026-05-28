@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Learning.Faster</title>
-  <meta name="description" content="Homepage minimale di Learning.Faster con 1 topic pubblicato." />
+  <meta name="description" content="Homepage essenziale di Learning.Faster generata automaticamente dai topic pubblicati." />
   <meta name="robots" content="index,follow" />
   <meta name="theme-color" content="#111827" />
   <link rel="canonical" href="https://martinabruni.github.io/Learning.Faster/" />
@@ -13,11 +13,11 @@
   <meta property="og:locale" content="it_IT" />
   <meta property="og:site_name" content="Learning.Faster" />
   <meta property="og:title" content="Learning.Faster" />
-  <meta property="og:description" content="Homepage minimale di Learning.Faster con 1 topic pubblicato." />
+  <meta property="og:description" content="Homepage essenziale di Learning.Faster generata automaticamente dai topic pubblicati." />
   <meta property="og:url" content="https://martinabruni.github.io/Learning.Faster/" />
   <meta name="twitter:card" content="summary" />
   <meta name="twitter:title" content="Learning.Faster" />
-  <meta name="twitter:description" content="Homepage minimale di Learning.Faster con 1 topic pubblicato." />
+  <meta name="twitter:description" content="Homepage essenziale di Learning.Faster generata automaticamente dai topic pubblicati." />
   <style>
     :root {
       --bg: #f5f5f4;
@@ -97,7 +97,6 @@
       margin-bottom: 40px;
     }
 
-    .hero-kicker,
     .topic-slug {
       display: inline-flex;
       align-items: center;
@@ -129,14 +128,6 @@
       color: var(--muted);
       font-size: 1.05rem;
       margin: 0;
-    }
-
-    .hero-meta {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      color: var(--muted);
-      font-size: 0.95rem;
     }
 
     .topics-grid {
@@ -216,16 +207,20 @@
 
     <main>
       <section class="hero" aria-labelledby="home-title">
-        <span class="hero-kicker">minimal static library</span>
         <h1 id="home-title">Un topic, una pagina.</h1>
         <p class="hero-copy">
-          Questa homepage e generata automaticamente dai contenuti presenti in <code>docs\topics\</code>.
-          Ogni cartella con <code>index.html</code> diventa una card pubblicata qui dopo il push.
+          Homepage generata automaticamente dai contenuti presenti in <code>docs\topics\</code>.
         </p>
       </section>
 
       <section aria-label="Topics pubblicati">
         <div class="topics-grid">
+        <article class="topic-card">
+          <p class="topic-slug">autenticazione</p>
+          <h2><a href="./topics/autenticazione/">Autenticazione Web, Standard Moderni e .NET - Guida Visuale 2026</a></h2>
+          <p class="topic-description">Autenticazione web spiegata bene, con standard moderni e .NET.</p>
+          <a class="topic-link" href="./topics/autenticazione/">Apri topic</a>
+        </article>
         <article class="topic-card">
           <p class="topic-slug">dotnet10</p>
           <h2><a href="./topics/dotnet10/">.NET 10</a></h2>

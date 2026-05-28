@@ -173,13 +173,7 @@ else {
 "@
 }
 
-$topicCountLabel = if ($topics.Count -eq 1) { "1 topic pubblicato" } else { "$($topics.Count) topic pubblicati" }
-$metaDescription = if ($topics.Count -eq 0) {
-    "Homepage minimale di Learning.Faster. I topic pubblicati compariranno automaticamente qui."
-}
-else {
-    "Homepage minimale di Learning.Faster con $topicCountLabel."
-}
+$metaDescription = "Homepage essenziale di Learning.Faster generata automaticamente dai topic pubblicati."
 
 $html = @"
 <!DOCTYPE html>
@@ -281,7 +275,6 @@ $html = @"
       margin-bottom: 40px;
     }
 
-    .hero-kicker,
     .topic-slug {
       display: inline-flex;
       align-items: center;
@@ -313,14 +306,6 @@ $html = @"
       color: var(--muted);
       font-size: 1.05rem;
       margin: 0;
-    }
-
-    .hero-meta {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      color: var(--muted);
-      font-size: 0.95rem;
     }
 
     .topics-grid {
@@ -400,16 +385,10 @@ $html = @"
 
     <main>
       <section class="hero" aria-labelledby="home-title">
-        <span class="hero-kicker">minimal static library</span>
-        <h1 id="home-title">Impara da card, non da rumore.</h1>
+        <h1 id="home-title">Un topic, una pagina.</h1>
         <p class="hero-copy">
-          Questa homepage e generata automaticamente dai contenuti presenti in <code>docs\topics\</code>.
-          Ogni cartella con <code>index.html</code> diventa una card pubblicata qui dopo il push.
+          Homepage generata automaticamente dai contenuti presenti in <code>docs\topics\</code>.
         </p>
-        <div class="hero-meta">
-          <span>$topicCountLabel</span>
-          <span>Homepage generata da repository contents</span>
-        </div>
       </section>
 
       <section aria-label="Topics pubblicati">
