@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Autenticazione Web, Standard Moderni e .NET - Guida Visuale 2026</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --bg-soft: #111936;
+      --panel: #151f3f;
+      --panel-2: #18264f;
+      --panel-3: #0f172f;
+      --text: #eef4ff;
+      --muted: #aab8d4;
+      --muted-2: #7d8cad;
+      --primary: #70e1ff;
+      --primary-2: #62a8ff;
+      --success: #6df7b0;
+      --warning: #ffd36e;
+      --danger: #ff7a8a;
+      --purple: #c79bff;
+      --line: rgba(255,255,255,0.12);
+      --shadow: 0 22px 70px rgba(0,0,0,0.38);
+      --radius: 24px;
+      --radius-sm: 16px;
+      --max: 1220px;
+      --code: #081024;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(112,225,255,0.20), transparent 36rem),
+        radial-gradient(circle at 80% 10%, rgba(199,155,255,0.18), transparent 32rem),
+        radial-gradient(circle at 30% 70%, rgba(109,247,176,0.10), transparent 34rem),
+        linear-gradient(180deg, #090d1b 0%, var(--bg) 40%, #070a14 100%);
+      line-height: 1.55;
+    }
+    .page { width: min(100% - 32px, var(--max)); margin: 0 auto; }
+    .topbar { position: sticky; top: 0; z-index: 20; backdrop-filter: blur(18px); background: rgba(8,13,28,0.78); border-bottom: 1px solid var(--line); }
+    .topbar-inner { width: min(100% - 32px, var(--max)); margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 14px 0; }
+    .brand { display: flex; align-items: center; gap: 12px; font-weight: 800; letter-spacing: -0.03em; }
+    .brand-mark { width: 38px; height: 38px; border-radius: 13px; background: linear-gradient(135deg, rgba(112,225,255,1), rgba(199,155,255,1)); box-shadow: 0 0 32px rgba(112,225,255,0.35); position: relative; }
+    .brand-mark::before { content: ""; position: absolute; inset: 10px; border: 2px solid rgba(9,13,28,0.82); border-radius: 50%; border-top-color: transparent; }
+    .nav { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+    .nav a { text-decoration: none; color: var(--muted); font-size: 13px; padding: 8px 10px; border-radius: 999px; transition: 0.18s ease; }
+    .nav a:hover { color: var(--text); background: rgba(255,255,255,0.08); }
+    .hero { padding: 72px 0 36px; }
+    .hero-grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 28px; align-items: stretch; }
+    .eyebrow { display: inline-flex; align-items: center; gap: 8px; color: var(--primary); background: rgba(112,225,255,0.08); border: 1px solid rgba(112,225,255,0.24); border-radius: 999px; padding: 7px 12px; font-size: 13px; font-weight: 700; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); box-shadow: 0 0 18px rgba(109,247,176,0.8); }
+    h1, h2, h3, h4 { margin: 0; letter-spacing: -0.045em; line-height: 1.05; }
+    h1 { font-size: clamp(42px, 7vw, 78px); margin-top: 18px; max-width: 900px; }
+    h2 { font-size: clamp(30px, 4vw, 48px); margin-bottom: 14px; }
+    h3 { font-size: 24px; margin-bottom: 10px; }
+    h4 { font-size: 18px; margin-bottom: 8px; }
+    p { color: var(--muted); margin: 0; }
+    .lead { font-size: clamp(18px, 2vw, 22px); margin-top: 18px; max-width: 760px; color: #d6e2fb; }
+    .hero-panel, .visual-board, .card { background: linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.025)), rgba(17,25,54,0.76); border: 1px solid var(--line); box-shadow: var(--shadow); }
+    .hero-panel, .visual-board { border-radius: var(--radius); padding: 26px; overflow: hidden; }
+    .card { border-radius: var(--radius-sm); padding: 22px; position: relative; overflow: hidden; }
+    .terminal { background: rgba(8,16,36,0.94); border: 1px solid rgba(255,255,255,0.10); border-radius: 18px; overflow: hidden; position: relative; }
+    .terminal-bar { padding: 12px 14px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; gap: 7px; align-items: center; }
+    .circle { width: 11px; height: 11px; border-radius: 50%; background: var(--danger); }
+    .circle:nth-child(2) { background: var(--warning); }
+    .circle:nth-child(3) { background: var(--success); }
+    .terminal-body { padding: 18px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 13px; color: #cfe1ff; }
+    .terminal-line { display: flex; gap: 10px; margin-bottom: 10px; }
+    .prompt { color: var(--success); }
+    .keyword { color: var(--primary); }
+    .string { color: var(--warning); }
+    .comment { color: var(--muted-2); }
+    .hero-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 18px; }
+    .stat { padding: 16px; background: rgba(255,255,255,0.06); border: 1px solid var(--line); border-radius: 18px; }
+    .stat strong { display: block; font-size: 24px; color: var(--text); margin-bottom: 4px; }
+    .stat span { font-size: 13px; color: var(--muted); }
+    section { padding: 54px 0; }
+    .section-head { display: grid; grid-template-columns: 0.82fr 1.18fr; gap: 28px; align-items: end; margin-bottom: 24px; }
+    .section-kicker { color: var(--primary); font-weight: 800; font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 10px; }
+    .grid { display: grid; gap: 18px; }
+    .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .icon { width: 42px; height: 42px; display: inline-grid; place-items: center; border-radius: 15px; margin-bottom: 14px; background: rgba(112,225,255,0.12); border: 1px solid rgba(112,225,255,0.25); position: relative; }
+    .icon.lock::before { content: ""; width: 16px; height: 13px; border: 2px solid var(--primary); border-radius: 4px; position: absolute; bottom: 10px; }
+    .icon.lock::after { content: ""; width: 13px; height: 12px; border: 2px solid var(--primary); border-bottom: 0; border-radius: 10px 10px 0 0; position: absolute; top: 9px; }
+    .icon.key::before { content: ""; width: 13px; height: 13px; border: 2px solid var(--success); border-radius: 50%; position: absolute; left: 9px; }
+    .icon.key::after { content: ""; width: 18px; height: 2px; background: var(--success); position: absolute; right: 8px; transform: rotate(-25deg); box-shadow: 7px 0 0 var(--success); }
+    .icon.shield::before { content: ""; width: 20px; height: 24px; background: linear-gradient(180deg, rgba(199,155,255,0.95), rgba(112,225,255,0.8)); clip-path: polygon(50% 0, 88% 14%, 82% 67%, 50% 100%, 18% 67%, 12% 14%); position: absolute; }
+    .icon.token::before { content: "{ }"; color: var(--warning); font-weight: 900; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .tag { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; border-radius: 999px; padding: 6px 9px; color: var(--primary); background: rgba(112,225,255,0.10); border: 1px solid rgba(112,225,255,0.22); margin-bottom: 12px; }
+    .tag.good { color: var(--success); background: rgba(109,247,176,0.10); border-color: rgba(109,247,176,0.24); }
+    .tag.warn { color: var(--warning); background: rgba(255,211,110,0.10); border-color: rgba(255,211,110,0.24); }
+    .tag.bad { color: var(--danger); background: rgba(255,122,138,0.10); border-color: rgba(255,122,138,0.24); }
+    .compare { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+    .flow { display: grid; grid-template-columns: 1fr 88px 1fr 88px 1fr; gap: 10px; align-items: center; margin-top: 18px; }
+    .actor { min-height: 190px; padding: 20px; border: 1px solid rgba(255,255,255,0.13); border-radius: 22px; background: radial-gradient(circle at top right, rgba(112,225,255,0.13), transparent 11rem), rgba(255,255,255,0.045); }
+    .actor h3 { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .badge { width: 36px; height: 36px; border-radius: 13px; display: inline-grid; place-items: center; font-weight: 900; color: #06101d; background: var(--primary); }
+    .mini-list { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+    .mini-list li { color: var(--muted); background: rgba(255,255,255,0.045); border: 1px solid rgba(255,255,255,0.07); border-radius: 13px; padding: 10px 12px; }
+    .arrow { height: 3px; background: linear-gradient(90deg, var(--primary), var(--purple)); border-radius: 999px; position: relative; }
+    .arrow::after { content: ""; position: absolute; right: -2px; top: 50%; width: 12px; height: 12px; border-top: 3px solid var(--purple); border-right: 3px solid var(--purple); transform: translateY(-50%) rotate(45deg); border-radius: 2px; }
+    .arrow-label { text-align: center; color: var(--muted); font-size: 12px; margin-top: 10px; font-weight: 700; }
+    .sequence { display: grid; gap: 14px; margin-top: 22px; }
+    .seq-row { display: grid; grid-template-columns: 52px 1fr; gap: 14px; align-items: start; padding: 18px; background: rgba(255,255,255,0.045); border: 1px solid rgba(255,255,255,0.09); border-radius: 18px; }
+    .num { width: 52px; height: 52px; border-radius: 17px; display: grid; place-items: center; background: linear-gradient(135deg, var(--primary), var(--purple)); color: #071020; font-weight: 950; font-size: 20px; box-shadow: 0 10px 28px rgba(112,225,255,0.18); }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .pill { border-radius: 999px; padding: 7px 10px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.10); color: var(--muted); font-size: 13px; font-weight: 650; }
+    .standard-card { display: grid; grid-template-columns: 0.72fr 1.28fr; gap: 18px; align-items: stretch; }
+    .standard-side { border-radius: 20px; padding: 22px; border: 1px solid rgba(112,225,255,0.18); background: radial-gradient(circle at 20% 0%, rgba(112,225,255,0.18), transparent 13rem), rgba(255,255,255,0.04); }
+    .steps { counter-reset: step; display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+    .steps li { counter-increment: step; display: grid; grid-template-columns: 34px 1fr; gap: 12px; align-items: start; padding: 12px; background: rgba(255,255,255,0.045); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; color: var(--muted); }
+    .steps li::before { content: counter(step); width: 34px; height: 34px; border-radius: 12px; display: grid; place-items: center; background: rgba(112,225,255,0.13); color: var(--primary); font-weight: 900; }
+    .dotline { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-top: 24px; position: relative; }
+    .dotline::before { content: ""; position: absolute; left: 7%; right: 7%; top: 29px; height: 3px; background: linear-gradient(90deg, var(--primary), var(--success), var(--purple)); opacity: 0.45; }
+    .dot-step { position: relative; z-index: 1; background: rgba(11,16,32,0.72); border: 1px solid rgba(255,255,255,0.11); border-radius: 18px; padding: 16px; text-align: center; }
+    .dot-step .bubble { width: 42px; height: 42px; margin: -2px auto 12px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--success)); color: #06101d; display: grid; place-items: center; font-weight: 950; }
+    .net-diagram { display: grid; grid-template-columns: 1fr 44px 1fr 44px 1fr; gap: 10px; align-items: center; margin-top: 18px; }
+    .net-box { background: rgba(255,255,255,0.045); border: 1px solid rgba(255,255,255,0.10); border-radius: 18px; padding: 18px; min-height: 140px; }
+    .net-box strong { display: block; font-size: 17px; margin-bottom: 8px; }
+    .small-arrow { height: 2px; background: var(--primary); position: relative; border-radius: 999px; }
+    .small-arrow::after { content: ""; position: absolute; right: -1px; top: 50%; width: 9px; height: 9px; border-top: 2px solid var(--primary); border-right: 2px solid var(--primary); transform: translateY(-50%) rotate(45deg); }
+    .risk-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+    .risk { border-color: rgba(255,122,138,0.22); }
+    .risk h3 { color: #ffe3e8; }
+    .risk-cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 14px; }
+    .risk-col { background: rgba(255,255,255,0.045); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 12px; }
+    .risk-col strong { display: block; color: var(--text); margin-bottom: 6px; font-size: 13px; }
+    .risk-col p { font-size: 13px; }
+    .trade-table { display: grid; gap: 14px; }
+    .trade-row { display: grid; grid-template-columns: 180px 1fr 1fr 1fr; gap: 12px; padding: 14px; border: 1px solid rgba(255,255,255,0.09); background: rgba(255,255,255,0.04); border-radius: 18px; align-items: stretch; }
+    .trade-row.header { background: rgba(112,225,255,0.09); color: var(--primary); font-weight: 900; text-transform: uppercase; letter-spacing: 0.08em; font-size: 12px; }
+    .trade-cell { color: var(--muted); font-size: 14px; }
+    .trade-cell:first-child { color: var(--text); font-weight: 850; }
+    .checklist { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+    .check-item { display: grid; grid-template-columns: 34px 1fr; gap: 12px; align-items: start; padding: 14px; background: rgba(255,255,255,0.045); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; }
+    .check, .cross { width: 34px; height: 34px; border-radius: 12px; display: grid; place-items: center; font-weight: 950; }
+    .check { background: rgba(109,247,176,0.12); border: 1px solid rgba(109,247,176,0.24); color: var(--success); }
+    .cross { background: rgba(255,122,138,0.12); border: 1px solid rgba(255,122,138,0.24); color: var(--danger); }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color: #d8e8ff; background: rgba(8,16,36,0.75); border: 1px solid rgba(255,255,255,0.08); border-radius: 7px; padding: 2px 6px; font-size: 0.92em; }
+    pre { background: var(--code); border: 1px solid rgba(255,255,255,0.10); border-radius: 18px; padding: 18px; overflow: auto; color: #d8e8ff; font-size: 13px; line-height: 1.55; }
+    .note { border-left: 4px solid var(--primary); background: rgba(112,225,255,0.08); padding: 16px 18px; border-radius: 14px; color: #d6e8ff; }
+    .note strong { color: var(--text); }
+    .warning-note { border-left-color: var(--warning); background: rgba(255,211,110,0.08); }
+    .danger-note { border-left-color: var(--danger); background: rgba(255,122,138,0.08); }
+    .footer { padding: 36px 0 60px; border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; }
+    .sources { margin-top: 18px; display: grid; gap: 8px; }
+    .source { padding: 10px 12px; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; background: rgba(255,255,255,0.035); }
+    .ref { color: var(--primary); white-space: nowrap; }
+    @media (max-width: 980px) {
+      .hero-grid, .section-head, .standard-card, .compare, .risk-grid, .checklist { grid-template-columns: 1fr; }
+      .grid-3, .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .flow, .net-diagram { grid-template-columns: 1fr; }
+      .arrow, .small-arrow { width: 3px; height: 42px; margin: 0 auto; background: linear-gradient(180deg, var(--primary), var(--purple)); }
+      .arrow::after, .small-arrow::after { right: 50%; top: auto; bottom: -2px; transform: translateX(50%) rotate(135deg); }
+      .dotline { grid-template-columns: 1fr; }
+      .dotline::before { display: none; }
+      .trade-row, .trade-row.header { grid-template-columns: 1fr; }
+      .trade-row.header { display: none; }
+      .trade-cell::before { display: block; color: var(--primary); font-weight: 900; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 4px; }
+      .trade-cell:nth-child(1)::before { content: "Tecnologia"; }
+      .trade-cell:nth-child(2)::before { content: "Pro"; }
+      .trade-cell:nth-child(3)::before { content: "Contro"; }
+      .trade-cell:nth-child(4)::before { content: "Quando non usarla"; }
+    }
+    @media (max-width: 720px) {
+      .topbar { position: static; }
+      .topbar-inner { align-items: flex-start; flex-direction: column; }
+      .nav { justify-content: flex-start; }
+      .hero { padding-top: 44px; }
+      .grid-2, .grid-3, .grid-4, .hero-stats { grid-template-columns: 1fr; }
+      .risk-cols { grid-template-columns: 1fr; }
+      .card, .visual-board, .hero-panel { padding: 18px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand"><span class="brand-mark" aria-hidden="true"></span><span>Auth Web &amp; .NET Security</span></div>
+      <nav class="nav" aria-label="Navigazione pagina">
+        <a href="#intro">Intro</a><a href="#panoramica">Flusso</a><a href="#standard">Standard</a><a href="#dotnet">.NET</a><a href="#rischi">Rischi</a><a href="#tradeoff">Trade-off</a><a href="#best-practice">Checklist</a>
+      </nav>
+    </div>
+  </header>
+  <main class="page">
+    <section class="hero">
+      <div class="hero-grid">
+        <div>
+          <span class="eyebrow"><span class="dot"></span> Aggiornato a maggio 2026</span>
+          <h1>Autenticazione web spiegata bene, con standard moderni e .NET.</h1>
+          <p class="lead">Una pagina visuale per capire cosa succede quando un utente fa login, perché entrano in gioco OAuth, OIDC, JWT, PKCE, cookie e token, e come ASP.NET Core li integra in modo pratico.</p>
+          <div class="hero-stats"><div class="stat"><strong>3</strong><span>attori principali: client, identity provider, API</span></div><div class="stat"><strong>6</strong><span>standard e concetti fondamentali</span></div><div class="stat"><strong>1</strong><span>regola base: mai fidarsi del client</span></div></div>
+        </div>
+        <aside class="hero-panel" aria-label="Esempio codice .NET">
+          <div class="terminal"><div class="terminal-bar"><span class="circle"></span><span class="circle"></span><span class="circle"></span></div><div class="terminal-body"><div class="terminal-line"><span class="prompt">&gt;</span><span><span class="keyword">AddAuthentication</span>()</span></div><div class="terminal-line"><span class="prompt">&gt;</span><span>.AddJwtBearer(<span class="string">"Bearer"</span>, options =&gt; ...)</span></div><div class="terminal-line"><span class="prompt">&gt;</span><span><span class="keyword">AddAuthorization</span>(policies, roles, claims)</span></div><div class="terminal-line"><span class="prompt">&gt;</span><span>app.UseAuthentication();</span></div><div class="terminal-line"><span class="prompt">&gt;</span><span>app.UseAuthorization();</span></div><div class="terminal-line"><span class="prompt">&gt;</span><span class="comment">// verifica identità prima, permessi dopo</span></div></div></div>
+          <div class="note" style="margin-top:18px;"><strong>Idea chiave:</strong> autenticazione = “chi sei?”. Autorizzazione = “cosa puoi fare?”. Sono collegate, ma non sono la stessa cosa.</div>
+        </aside>
+      </div>
+    </section>
+    <section id="intro">
+      <div class="section-head"><div><div class="section-kicker">1. Intro</div><h2>Autenticazione e autorizzazione non vanno confuse.</h2></div><p>In una web app moderna non basta sapere che un utente “ha fatto login”. Devi anche sapere quali risorse può usare, da quale client arriva, quanto è affidabile il token e quali rischi stai introducendo.</p></div>
+      <div class="compare"><article class="card"><div class="icon lock"></div><span class="tag">Autenticazione</span><h3>Verifica l’identità</h3><p>Risponde alla domanda: <strong>“Chi è questo utente?”</strong>. Può produrre una sessione, un cookie, un ID token o un insieme di claim.</p><div class="pill-row"><span class="pill">Login</span><span class="pill">Passwordless</span><span class="pill">MFA</span><span class="pill">OIDC</span></div></article><article class="card"><div class="icon shield"></div><span class="tag">Autorizzazione</span><h3>Verifica i permessi</h3><p>Risponde alla domanda: <strong>“Cosa può fare?”</strong>. Usa ruoli, policy, scope, claim e regole applicative per decidere l’accesso.</p><div class="pill-row"><span class="pill">Role</span><span class="pill">Policy</span><span class="pill">Claim</span><span class="pill">Scope</span></div></article></div>
+      <div class="grid grid-3" style="margin-top:18px;"><article class="card"><span class="tag good">Perché conta</span><h3>Le app sono distribuite</h3><p>Frontend, API, microservizi, app mobile e servizi cloud parlano tra loro. Serve un modo standard per trasportare identità e permessi.</p></article><article class="card"><span class="tag warn">Perché è fragile</span><h3>I token sono credenziali</h3><p>Un access token rubato può essere usato come una chiave. Per questo durata, storage, validazione e revoca sono fondamentali.</p></article><article class="card"><span class="tag bad">Errore comune</span><h3>Fidarsi del browser</h3><p>Il client può essere manipolato. Il backend deve sempre validare token, audience, issuer, firma, scadenza e permessi.</p></article></div>
+    </section>
+    <section id="panoramica">
+      <div class="section-head"><div><div class="section-kicker">2. Panoramica visuale</div><h2>Client → Identity Provider → Backend/API.</h2></div><p>Il client non dovrebbe gestire direttamente password e segreti sensibili. Delega il login a un Identity Provider, riceve token e li usa per chiamare le API.</p></div>
+      <div class="visual-board"><h3>Flusso principale: login, token, chiamata API</h3><p>Questo schema rappresenta il caso tipico: una SPA, una web app o una mobile app usa un provider di identità come Microsoft Entra ID, Auth0, Keycloak o un provider aziendale.</p><div class="flow"><div class="actor"><h3><span class="badge">C</span> Client</h3><ul class="mini-list"><li>Mostra UI e pulsante login</li><li>Avvia authorization code flow con PKCE</li><li>Invia access token alle API</li></ul></div><div><div class="arrow"></div><div class="arrow-label">1. Redirect login</div></div><div class="actor"><h3><span class="badge">ID</span> Identity Provider</h3><ul class="mini-list"><li>Autentica l’utente</li><li>Applica MFA e policy</li><li>Emette code, ID token, access token</li></ul></div><div><div class="arrow"></div><div class="arrow-label">2. Token</div></div><div class="actor"><h3><span class="badge">API</span> Backend/API</h3><ul class="mini-list"><li>Valida firma e issuer</li><li>Controlla audience e scadenza</li><li>Applica policy, scope e claim</li></ul></div></div><div class="sequence"><div class="seq-row"><div class="num">1</div><div><h4>Login</h4><p>L’utente clicca “Accedi”. Il client prepara una richiesta verso l’Identity Provider.</p></div></div><div class="seq-row"><div class="num">2</div><div><h4>Emissione del codice</h4><p>L’Identity Provider autentica l’utente e torna al client con un authorization code.</p></div></div><div class="seq-row"><div class="num">3</div><div><h4>Scambio con token</h4><p>Il client scambia il codice con token. Con PKCE dimostra di essere lo stesso client che ha iniziato il flusso.</p></div></div><div class="seq-row"><div class="num">4</div><div><h4>Chiamata API</h4><p>Il client manda l’access token nell’header <code>Authorization: Bearer ...</code>.</p></div></div><div class="seq-row"><div class="num">5</div><div><h4>Validazione backend</h4><p>Il backend accetta la richiesta solo se token, claim, scope e policy sono validi.</p></div></div></div></div>
+    </section>
+    <section id="standard">
+      <div class="section-head"><div><div class="section-kicker">3. Standard fondamentali</div><h2>Gli standard da conoscere come developer .NET.</h2></div><p>OAuth 2.1, OIDC, JWT, PKCE e refresh token non sono intercambiabili. Ogni pezzo ha un compito preciso. Confonderli porta a bug di sicurezza.</p></div>
+      <div class="grid" style="gap:22px;">
+        <article class="card standard-card"><div class="standard-side"><div class="icon key"></div><span class="tag">OAuth 2.1</span><h3>Autorizzazione delegata</h3><p>OAuth 2.1 è l’evoluzione di OAuth 2.0: consolida pratiche più sicure, spinge Authorization Code Flow con PKCE e rimuove pattern storicamente rischiosi. A maggio 2026 è ancora un draft IETF, non un RFC finale.</p></div><div><h4>A cosa serve</h4><p>Dà a un’app accesso limitato a una risorsa senza consegnarle la password dell’utente.</p><h4 style="margin-top:16px;">Come funziona</h4><ol class="steps"><li>Il client manda l’utente all’Authorization Server.</li><li>L’utente si autentica e concede il consenso.</li><li>Il client riceve un authorization code.</li><li>Il client scambia il code con un access token.</li><li>L’API usa il token per decidere se concedere accesso.</li></ol></div></article>
+        <article class="card standard-card"><div class="standard-side"><div class="icon shield"></div><span class="tag">OpenID Connect</span><h3>Identità sopra OAuth</h3><p>OIDC è uno strato di identità costruito sopra OAuth 2.0. Permette al client di verificare l’identità dell’utente e ricevere claim standardizzati.</p></div><div><h4>A cosa serve</h4><p>Serve quando non vuoi solo autorizzare l’accesso a una risorsa, ma vuoi sapere chi è l’utente.</p><h4 style="margin-top:16px;">Come funziona</h4><ol class="steps"><li>Il client richiede scope come <code>openid</code>, <code>profile</code>, <code>email</code>.</li><li>L’Identity Provider autentica l’utente.</li><li>Il client riceve un ID token.</li><li>Il client valida firma, issuer, audience, nonce e scadenza.</li><li>I claim diventano identità applicativa.</li></ol></div></article>
+        <article class="card standard-card"><div class="standard-side"><div class="icon token"></div><span class="tag">JWT</span><h3>Formato compatto di token</h3><p>JWT è un formato compatto e URL-safe per trasferire claim tra due parti. Può essere firmato e, in alcuni casi, cifrato.</p></div><div><h4>A cosa serve</h4><p>Rappresenta informazioni come subject, audience, issuer, scope, ruoli e scadenza.</p><h4 style="margin-top:16px;">Come funziona</h4><ol class="steps"><li>Header: indica tipo e algoritmo.</li><li>Payload: contiene i claim.</li><li>Signature: protegge integrità e autenticità.</li><li>Il backend valida firma e claim critici.</li><li>Il backend non deve accettare token solo perché “sembra un JWT”.</li></ol></div></article>
+        <article class="card standard-card"><div class="standard-side"><div class="icon key"></div><span class="tag">PKCE</span><h3>Protezione del code flow</h3><p>PKCE mitiga l’attacco di intercettazione dell’authorization code ed è ormai centrale nei flussi moderni.</p></div><div><h4>A cosa serve</h4><p>Impedisce che un attaccante rubi il code e lo scambi al posto del client legittimo.</p><h4 style="margin-top:16px;">Come funziona</h4><ol class="steps"><li>Il client genera un <code>code_verifier</code> casuale.</li><li>Calcola un <code>code_challenge</code>, di solito con SHA-256.</li><li>Manda il challenge nella richiesta di login.</li><li>Quando scambia il code, manda il verifier originale.</li><li>Il server confronta challenge e verifier prima di emettere token.</li></ol></div></article>
+        <article class="card standard-card"><div class="standard-side"><div class="icon lock"></div><span class="tag">Refresh Token</span><h3>Rinnovo della sessione</h3><p>Un refresh token serve a ottenere nuovi access token dopo la scadenza. È molto sensibile perché può prolungare l’accesso nel tempo.</p></div><div><h4>A cosa serve</h4><p>Evita di chiedere il login a ogni scadenza dell’access token.</p><h4 style="margin-top:16px;">Come funziona</h4><ol class="steps"><li>L’Identity Provider emette access token breve e refresh token più duraturo.</li><li>Quando l’access token scade, il client usa il refresh token.</li><li>Il token endpoint restituisce un nuovo access token.</li><li>Con rotation, viene emesso anche un nuovo refresh token.</li><li>Se viene rilevato riuso sospetto, la sessione può essere invalidata.</li></ol></div></article>
+        <article class="card standard-card"><div class="standard-side"><div class="icon token"></div><span class="tag">Cookie vs Token</span><h3>Sessione server o token bearer?</h3><p>Cookie-based auth e token-based auth risolvono problemi simili, ma con superfici di rischio diverse.</p></div><div><h4>A cosa servono</h4><p>I cookie sono comodi per web app server-side. I bearer token sono pratici per API, app mobile, SPA e architetture distribuite.</p><h4 style="margin-top:16px;">Come funzionano</h4><ol class="steps"><li>Cookie auth: il server crea una sessione o un ticket protetto.</li><li>Il browser rimanda automaticamente il cookie a ogni richiesta.</li><li>Token auth: il client invia esplicitamente il token nell’header.</li><li>Il backend valida il token a ogni chiamata.</li><li>Cookie richiede attenzione a CSRF; token richiede attenzione a theft e storage.</li></ol></div></article>
+      </div>
+      <div class="note warning-note" style="margin-top:22px;"><strong>Nota aggiornata:</strong> OAuth 2.1 è importante da conoscere, ma a maggio 2026 va trattato come draft. Per production, usa provider e librerie che seguono OAuth 2.0, PKCE, OIDC e le best current practice di sicurezza.</div>
+    </section>
+    <section id="dotnet">
+      <div class="section-head"><div><div class="section-kicker">4. Come funziona in .NET</div><h2>ASP.NET Core usa middleware, scheme, handler e policy.</h2></div><p>In .NET configuri scheme di autenticazione, handler per cookie/JWT/OIDC, e policy di autorizzazione applicate su endpoint e controller.</p></div>
+      <div class="visual-board"><h3>Mini diagramma del flusso in ASP.NET Core</h3><div class="net-diagram"><div class="net-box"><strong>1. Request HTTP</strong><p>Arriva una chiamata con cookie o header <code>Authorization</code>.</p></div><div class="small-arrow"></div><div class="net-box"><strong>2. Authentication middleware</strong><p>Legge lo scheme, invoca l’handler e costruisce <code>ClaimsPrincipal</code>.</p></div><div class="small-arrow"></div><div class="net-box"><strong>3. Authorization middleware</strong><p>Applica policy, role, claim e scope prima di eseguire l’endpoint.</p></div></div><div class="grid grid-2" style="margin-top:22px;"><article class="card"><span class="tag">Authentication middleware</span><h3>Capisce “chi sei”</h3><p>ASP.NET Core Authentication usa scheme e handler. Esempi: cookie handler, JWT bearer handler, OpenID Connect handler.</p><pre><code>builder.Services
+    .AddAuthentication("Bearer")
+    .AddJwtBearer("Bearer", options =&gt;
+    {
+        options.Authority = "https://login.microsoftonline.com/{tenantId}/v2.0";
+        options.Audience = "api://my-api";
+    });
+
+app.UseAuthentication();
+app.UseAuthorization();</code></pre></article><article class="card"><span class="tag">Authorization</span><h3>Decide “cosa puoi fare”</h3><p>L’autorizzazione usa policy, ruoli, claim e scope. Prima si identifica l’utente, poi si valutano i permessi.</p><pre><code>builder.Services.AddAuthorization(options =&gt;
+{
+    options.AddPolicy("CanReadInvoices", policy =&gt;
+        policy.RequireAuthenticatedUser()
+              .RequireClaim("scope", "invoices.read"));
+});
+
+app.MapGet("/invoices", () =&gt; "ok")
+   .RequireAuthorization("CanReadInvoices");</code></pre></article><article class="card"><span class="tag">ASP.NET Core Identity</span><h3>Gestisce utenti locali</h3><p>Identity aggiunge login UI, gestione utenti, password, ruoli, conferma email, reset password e integrazione con Entity Framework.</p><div class="pill-row"><span class="pill">UserManager</span><span class="pill">SignInManager</span><span class="pill">Roles</span><span class="pill">Password hashing</span></div></article><article class="card"><span class="tag">Identity Provider esterno</span><h3>Entra ID, Auth0, Keycloak</h3><p>Per scenari enterprise, SSO e identità centralizzata, una web app ASP.NET Core può integrarsi con Microsoft Entra ID tramite OAuth 2.0 e OpenID Connect.</p><div class="pill-row"><span class="pill">OIDC login</span><span class="pill">JWT bearer API</span><span class="pill">Scopes</span><span class="pill">Conditional Access</span></div></article></div><div class="note" style="margin-top:22px;"><strong>Regola pratica .NET:</strong> usa cookie/OIDC per web app server-side, JWT bearer per API, Identity per utenti locali, Microsoft.Identity.Web/MSAL per integrazioni Microsoft Entra ID.</div></div>
+    </section>
+    <section id="flusso-completo">
+      <div class="section-head"><div><div class="section-kicker">5. Flusso completo</div><h2>Step by step: dal login all’accesso alla risorsa.</h2></div><p>Questa sequenza è il modello mentale da ricordare. Le implementazioni cambiano, ma i passaggi concettuali restano simili.</p></div>
+      <div class="visual-board"><div class="dotline"><div class="dot-step"><div class="bubble">1</div><h4>Login utente</h4><p>L’utente parte dal client e clicca “Accedi”.</p></div><div class="dot-step"><div class="bubble">2</div><h4>Redirect a IdP</h4><p>Il client manda l’utente all’Identity Provider.</p></div><div class="dot-step"><div class="bubble">3</div><h4>Emissione token</h4><p>Il provider restituisce code e poi token.</p></div><div class="dot-step"><div class="bubble">4</div><h4>Validazione API</h4><p>Il backend verifica firma, issuer, audience, scadenza.</p></div><div class="dot-step"><div class="bubble">5</div><h4>Accesso risorse</h4><p>Solo policy e scope validi passano.</p></div></div><div class="grid grid-2" style="margin-top:24px;"><article class="card"><h3>Cosa vede il client</h3><ul class="mini-list"><li>Una pagina di login o un redirect.</li><li>Un token da usare nelle chiamate API.</li><li>Una scadenza dopo cui rinnovare la sessione.</li></ul></article><article class="card"><h3>Cosa deve fare il backend</h3><ul class="mini-list"><li>Validare sempre il token lato server.</li><li>Non fidarsi di claim modificabili dal client.</li><li>Applicare autorizzazione su ogni endpoint sensibile.</li></ul></article></div></div>
+    </section>
+    <section id="rischi">
+      <div class="section-head"><div><div class="section-kicker">6. Rischi di sicurezza</div><h2>La parte critica: gli standard non salvano da configurazioni sbagliate.</h2></div><p>Molte vulnerabilità nascono perché gli standard vengono usati male: token salvati male, redirect aperti, claim non validati, CORS permissivo, autorizzazione solo lato frontend.</p></div>
+      <div class="risk-grid"><article class="card risk"><span class="tag bad">Token theft</span><h3>Furto di token</h3><div class="risk-cols"><div class="risk-col"><strong>Spiegazione</strong><p>Un token rubato può essere usato come credenziale bearer.</p></div><div class="risk-col"><strong>Esempio</strong><p>Access token salvato in localStorage e letto da script malevolo.</p></div><div class="risk-col"><strong>Mitigazione</strong><p>Token brevi, storage sicuro, HttpOnly cookie, rotazione, revoca, HTTPS.</p></div></div></article><article class="card risk"><span class="tag bad">XSS</span><h3>Cross-Site Scripting</h3><div class="risk-cols"><div class="risk-col"><strong>Spiegazione</strong><p>Un attaccante esegue JavaScript nel browser dell’utente.</p></div><div class="risk-col"><strong>Esempio</strong><p>Commento HTML non sanificato che legge dati sensibili.</p></div><div class="risk-col"><strong>Mitigazione</strong><p>Output encoding, CSP, sanitizzazione, niente token accessibili via JS.</p></div></div></article><article class="card risk"><span class="tag bad">CSRF</span><h3>Cross-Site Request Forgery</h3><div class="risk-cols"><div class="risk-col"><strong>Spiegazione</strong><p>Il browser invia automaticamente cookie a un sito su cui l’utente è loggato.</p></div><div class="risk-col"><strong>Esempio</strong><p>Una pagina malevola forza una POST verso la tua app cookie-based.</p></div><div class="risk-col"><strong>Mitigazione</strong><p>Anti-forgery token, SameSite, controlli origin/referer.</p></div></div></article><article class="card risk"><span class="tag bad">Replay attack</span><h3>Riuso di una richiesta o token</h3><div class="risk-cols"><div class="risk-col"><strong>Spiegazione</strong><p>Un attaccante riusa un token o una richiesta valida già catturata.</p></div><div class="risk-col"><strong>Esempio</strong><p>Token intercettato in log o proxy e riutilizzato prima della scadenza.</p></div><div class="risk-col"><strong>Mitigazione</strong><p>HTTPS, token brevi, nonce, jti, sender-constrained token dove disponibile.</p></div></div></article><article class="card risk"><span class="tag bad">Misconfigured auth</span><h3>Autenticazione configurata male</h3><div class="risk-cols"><div class="risk-col"><strong>Spiegazione</strong><p>La configurazione accetta token che non dovrebbe accettare.</p></div><div class="risk-col"><strong>Esempio</strong><p>API che valida la firma ma non controlla audience o issuer.</p></div><div class="risk-col"><strong>Mitigazione</strong><p>Validare issuer, audience, lifetime, firma, algoritmo e policy.</p></div></div></article><article class="card risk"><span class="tag bad">Over-trusting client</span><h3>Fidarsi troppo del frontend</h3><div class="risk-cols"><div class="risk-col"><strong>Spiegazione</strong><p>Il frontend è ambiente ostile: può essere letto, modificato e automatizzato.</p></div><div class="risk-col"><strong>Esempio</strong><p>Il pulsante “admin” è nascosto via CSS, ma l’endpoint non è protetto.</p></div><div class="risk-col"><strong>Mitigazione</strong><p>Autorizzazione sempre server-side, deny-by-default, test sugli endpoint.</p></div></div></article></div><div class="note danger-note" style="margin-top:22px;"><strong>Regola d’oro:</strong> il client può migliorare UX, ma non deve essere la barriera di sicurezza. La barriera vera sta nel backend, nelle policy e nell’Identity Provider.</div>
+    </section>
+    <section id="tradeoff">
+      <div class="section-head"><div><div class="section-kicker">7. Limiti e trade-off</div><h2>Nessuna tecnologia è sempre la scelta giusta.</h2></div><p>Scegliere bene significa capire quando una tecnologia è adatta, quali rischi porta e quando introduce più complessità che valore.</p></div>
+      <div class="visual-board"><div class="trade-table"><div class="trade-row header"><div>Tecnologia</div><div>Pro</div><div>Contro</div><div>Quando NON usarla</div></div><div class="trade-row"><div class="trade-cell">JWT</div><div class="trade-cell">Compatto, stateless, adatto ad API e microservizi, contiene claim verificabili.</div><div class="trade-cell">Revoca difficile, rischio leak, payload leggibile se non cifrato, claim obsoleti fino a scadenza.</div><div class="trade-cell">Non usarlo come sessione lunga piena di dati sensibili o quando ti serve revoca immediata semplice.</div></div><div class="trade-row"><div class="trade-cell">OAuth 2.x</div><div class="trade-cell">Standard per accesso delegato, scope, consenso, accesso API senza password condivise.</div><div class="trade-cell">Non è autenticazione pura; implementazioni errate creano redirect, token e scope vulnerabili.</div><div class="trade-cell">Non usarlo da solo per “login” senza OIDC; non usarlo per saltare autorizzazione backend.</div></div><div class="trade-row"><div class="trade-cell">OIDC</div><div class="trade-cell">Standardizza login federato, ID token, claim, discovery e integrazione con Identity Provider.</div><div class="trade-cell">Più componenti da configurare: redirect URI, nonce, issuer, client, callback, logout.</div><div class="trade-cell">Non serve se hai solo comunicazione machine-to-machine senza identità utente.</div></div><div class="trade-row"><div class="trade-cell">Cookie auth</div><div class="trade-cell">Ottima per web app server-side, HttpOnly, Secure, SameSite, integrazione naturale col browser.</div><div class="trade-cell">Il browser invia cookie automaticamente: rischio CSRF se non mitigato.</div><div class="trade-cell">Non è ideale per API pubbliche multi-client o app mobile che non usano browser session-based.</div></div></div></div>
+    </section>
+    <section id="best-practice">
+      <div class="section-head"><div><div class="section-kicker">8. Best practice per dev .NET</div><h2>Checklist pratica: cosa fare e cosa evitare.</h2></div><p>Usa questa lista quando configuri una web app, una API o un’integrazione con Entra ID.</p></div>
+      <div class="grid grid-2"><article class="card"><span class="tag good">Da fare</span><div class="checklist" style="grid-template-columns:1fr;"><div class="check-item"><div class="check">✓</div><div><h4>Usa HTTPS ovunque</h4><p>Token e cookie devono viaggiare solo su connessioni cifrate.</p></div></div><div class="check-item"><div class="check">✓</div><div><h4>Preferisci Authorization Code Flow + PKCE</h4><p>È il pattern moderno per applicazioni con utente interattivo.</p></div></div><div class="check-item"><div class="check">✓</div><div><h4>Valida sempre i JWT lato API</h4><p>Firma, issuer, audience, scadenza, algoritmo e claim richiesti.</p></div></div><div class="check-item"><div class="check">✓</div><div><h4>Usa policy-based authorization</h4><p>Le policy sono più espressive dei soli ruoli e riducono duplicazioni.</p></div></div><div class="check-item"><div class="check">✓</div><div><h4>Proteggi i cookie</h4><p>Imposta <code>HttpOnly</code>, <code>Secure</code>, <code>SameSite</code> e anti-forgery dove serve.</p></div></div><div class="check-item"><div class="check">✓</div><div><h4>Fai log sicuro</h4><p>Non loggare access token, refresh token, authorization code o cookie di sessione.</p></div></div></div></article><article class="card"><span class="tag bad">Da evitare</span><div class="checklist" style="grid-template-columns:1fr;"><div class="check-item"><div class="cross">×</div><div><h4>Non salvare token sensibili in localStorage se puoi evitarlo</h4><p>In caso di XSS diventano facilmente leggibili da JavaScript.</p></div></div><div class="check-item"><div class="cross">×</div><div><h4>Non fidarti di claim lato frontend</h4><p>Il frontend può nascondere o mostrare UI, ma non decide i permessi reali.</p></div></div><div class="check-item"><div class="cross">×</div><div><h4>Non accettare token con audience sbagliata</h4><p>Un token emesso per un’altra API non deve valere per la tua.</p></div></div><div class="check-item"><div class="cross">×</div><div><h4>Non usare wildcard nei redirect URI</h4><p>Redirect troppo permissivi facilitano furti di code e token.</p></div></div><div class="check-item"><div class="cross">×</div><div><h4>Non mettere segreti in SPA o app mobile</h4><p>Un client pubblico non può proteggere davvero un client secret.</p></div></div><div class="check-item"><div class="cross">×</div><div><h4>Non proteggere solo controller “visibili”</h4><p>Ogni endpoint sensibile deve avere autorizzazione server-side esplicita.</p></div></div></div></article></div>
+      <div class="visual-board" style="margin-top:22px;"><h3>Template mentale per scegliere in .NET</h3><div class="grid grid-4" style="margin-top:18px;"><article class="card"><span class="tag">Web app MVC/Razor</span><h4>Cookie + OIDC</h4><p>Login federato, sessione browser protetta, token gestiti server-side.</p></article><article class="card"><span class="tag">Web API</span><h4>JWT Bearer</h4><p>API stateless che valida token emessi da un’autorità affidabile.</p></article><article class="card"><span class="tag">Account locali</span><h4>ASP.NET Core Identity</h4><p>Utenti, password, ruoli, reset password e gestione account interna.</p></article><article class="card"><span class="tag">Enterprise SSO</span><h4>Entra ID</h4><p>OIDC/OAuth, tenant, app registration, Conditional Access e integrazione aziendale.</p></article></div><pre style="margin-top:22px;"><code>// Ordine tipico nel pipeline ASP.NET Core
+app.UseRouting();
+
+app.UseAuthentication(); // crea HttpContext.User
+app.UseAuthorization();  // applica policy e permessi
+
+app.MapControllers();</code></pre><div class="note warning-note"><strong>Attenzione all’ordine:</strong> in ASP.NET Core l’autenticazione deve avvenire prima dell’autorizzazione, altrimenti le policy non hanno un utente affidabile su cui lavorare.</div></div>
+    </section>
+  </main>
+  <footer class="footer"><div class="page"><strong>Fonti tecniche principali</strong><p style="margin-top:8px;">Sintesi basata su specifiche IETF/OpenID Foundation e documentazione Microsoft ASP.NET Core / Microsoft identity platform disponibili fino a maggio 2026.</p><div class="sources"><div class="source">OAuth 2.1 IETF draft, OAuth 2.0 Security Best Current Practice RFC 9700, OpenID Connect Core 1.0, JWT RFC 7519, PKCE RFC 7636.</div><div class="source">Documentazione Microsoft: ASP.NET Core authentication, authorization, Identity, JWT bearer, SameSite cookie e Microsoft Entra ID.</div></div></div></footer>
+  <script>
+    (function () {
+      const cards = document.querySelectorAll(".card, .actor, .dot-step, .net-box");
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.style.transform = "translateY(0)";
+            entry.target.style.opacity = "1";
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.12 });
+      cards.forEach((card) => {
+        card.style.transform = "translateY(14px)";
+        card.style.opacity = "0";
+        card.style.transition = "transform 420ms ease, opacity 420ms ease";
+        observer.observe(card);
+      });
+    })();
+  </script>
+</body>
+</html>
