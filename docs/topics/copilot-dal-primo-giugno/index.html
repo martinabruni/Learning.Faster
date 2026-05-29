@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guida al Nuovo Modello di Consumo GitHub Copilot</title>
+    <style>
+        :root {
+            --bg-color: #f4f6f9;
+            --card-bg: #ffffff;
+            --text-main: #2c3e50;
+            --text-muted: #627d98;
+            --accent-blue: #2b6cb0;
+            --accent-green: #2f855a;
+            --accent-orange: #c05621;
+            --border-color: #e2e8f0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            margin: 0;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            color: #1a202c;
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+
+        .date-badge {
+            display: inline-block;
+            background-color: #e2e8f0;
+            color: #4a5568;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 6px;
+        }
+
+        .card-attuale::before { background-color: var(--accent-green); }
+        .card-nuovo::before { background-color: var(--accent-orange); }
+
+        .card h2 {
+            margin-top: 0;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-attuale h2 { color: var(--accent-green); }
+        .card-nuovo h2 { color: var(--accent-orange); }
+
+        .price-tag {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #1a202c;
+            margin: 15px 0;
+        }
+
+        ul {
+            padding-left: 20px;
+            margin-bottom: 0;
+        }
+
+        li {
+            margin-bottom: 12px;
+        }
+
+        .highlight {
+            font-weight: 600;
+            color: #1a202c;
+        }
+
+        .disclaimer-box {
+            background-color: #ebf8ff;
+            border-left: 4px solid var(--accent-blue);
+            padding: 25px;
+            border-radius: 0 12px 12px 0;
+            margin-top: 40px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+        }
+
+        .disclaimer-box h3 {
+            margin-top: 0;
+            color: var(--accent-blue);
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+
+        .disclaimer-box p {
+            margin: 0;
+            color: #2d3748;
+            font-size: 1rem;
+        }
+
+        .footer-note {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Evoluzione dei Consumi di GitHub Copilot</h1>
+        <span class="date-badge">Riforma in vigore dal 1° Giugno 2026</span>
+    </header>
+
+    <div class="grid">
+        <!-- MODELLO ATTUALE -->
+        <div class="card card-attuale">
+            <h2>Modello Precedente (Flat)</h2>
+            <div class="price-tag">Tariffa Fissa</div>
+            <p>Caratterizzato da una gestione lineare e priva di metriche basate sul volume di testo elaborato:</p>
+            <ul>
+                <li><span class="highlight">Uso Illimitato:</span> Richieste di chat, refactoring, spiegazione del codice e interazioni generali senza tariffazione legata ai token.</li>
+                <li><span class="highlight">Nessun Controllo Token:</span> Gli utenti non devono monitorare la lunghezza del contesto (input) o della risposta (output).</li>
+                <li><span class="highlight">Gestione dei Carichi:</span> In caso di congestione o abusi, rallentamenti generali della velocità di risposta al posto di blocchi economici.</li>
+            </ul>
+        </div>
+
+        <!-- NUOVO MODELLO -->
+        <div class="card card-nuovo">
+            <h2>Modello Post-1° Giugno (A Token)</h2>
+            <div class="price-tag">GitHub AI Credits</div>
+            <p>Introduzione del calcolo basato su token di input, output e cache per i carichi pesanti:</p>
+            <ul>
+                <li><span class="highlight">Plafond di Crediti:</span> La quota mensile si converte in crediti AI utili a coprire i token consumati (1 Credito = $0,01).</li>
+                <li><span class="highlight">Fatturazione sui Modelli:</span> L'uso di modelli avanzati ("Frontier") erode i crediti più velocemente rispetto ai modelli leggeri.</li>
+                <li><span class="highlight">Blocco o Extra-Soglia:</span> Esauriti i crediti, l'uso delle funzioni evolute si interrompe a meno di attivare pagamenti a consumo aggiuntivi (Pay-as-you-go).</li>
+                <li><span class="highlight">Eccezione Autocompletamento:</span> L'autocompletamento in linea (inline completion) e i suggerimenti "Next Edit" <span class="highlight" style="color: var(--accent-green);">rimangono gratuiti e illimitati</span>.</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- DISCLAIMER CHATGPT E CLAUDE -->
+    <div class="disclaimer-box">
+        <h3>📌 NOTA IMPORTANTE: Scenario ChatGPT & Claude</h3>
+        <p>Le piattaforme web e mobile ufficiali di <strong>ChatGPT (OpenAI)</strong> e <strong>Claude (Anthropic)</strong> per utenti finali <strong>NON adotteranno questo modello di fatturazione a token</strong>.</p>
+        <p style="margin-top: 10px;">Entrambi i servizi continueranno a basarsi sui classici abbonamenti flat mensili (es. Plus, Pro, Max) con limiti sul numero di messaggi periodici. Le metriche a consumo (token) rimangono relegate esclusivamente all'utilizzo delle loro API dedicate agli sviluppatori.</p>
+    </div>
+
+    <div class="footer-note">
+        Documento informativo creato a scopo di sintesi e consultazione. I marchi citati appartengono ai rispettivi proprietari.
+    </div>
+</div>
+
+</body>
+</html>
