@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Perché React ha bisogno di una build?</title>
+  <style>
+    :root {
+      --bg: #090b14;
+      --panel: rgba(255, 255, 255, 0.075);
+      --panel-strong: rgba(255, 255, 255, 0.12);
+      --border: rgba(255, 255, 255, 0.16);
+      --text: #f6f7fb;
+      --muted: #aab0c5;
+      --accent: #8b5cf6;
+      --accent-2: #22d3ee;
+      --accent-3: #34d399;
+      --danger: #fb7185;
+      --warning: #fbbf24;
+      --shadow: 0 30px 80px rgba(0, 0, 0, 0.45);
+      --radius: 28px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 20% 15%, rgba(139, 92, 246, 0.35), transparent 32%),
+        radial-gradient(circle at 85% 25%, rgba(34, 211, 238, 0.22), transparent 28%),
+        radial-gradient(circle at 50% 90%, rgba(52, 211, 153, 0.18), transparent 28%),
+        var(--bg);
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
+      background-size: 42px 42px;
+      mask-image: radial-gradient(circle at center, black, transparent 78%);
+      z-index: -1;
+    }
+
+    .page {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 48px 0 70px;
+    }
+
+    header {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 28px;
+      align-items: stretch;
+      margin-bottom: 28px;
+    }
+
+    .hero {
+      padding: 38px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background:
+        linear-gradient(135deg, rgba(255,255,255,0.12), rgba(255,255,255,0.04)),
+        rgba(255,255,255,0.06);
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: "</>";
+      position: absolute;
+      right: -16px;
+      bottom: -42px;
+      font-size: 170px;
+      line-height: 1;
+      color: rgba(255,255,255,0.045);
+      font-weight: 900;
+      letter-spacing: -12px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(139, 92, 246, 0.16);
+      border: 1px solid rgba(139, 92, 246, 0.36);
+      color: #ddd6fe;
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .pulse-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--accent-3);
+      box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.7);
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      70% {
+        box-shadow: 0 0 0 12px rgba(52, 211, 153, 0);
+      }
+      100% {
+        box-shadow: 0 0 0 0 rgba(52, 211, 153, 0);
+      }
+    }
+
+    h1 {
+      margin: 22px 0 16px;
+      max-width: 850px;
+      font-size: clamp(38px, 7vw, 76px);
+      line-height: 0.92;
+      letter-spacing: -0.075em;
+    }
+
+    .gradient {
+      background: linear-gradient(90deg, #fff, #c4b5fd 42%, #67e8f9 72%, #86efac);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .lead {
+      max-width: 760px;
+      color: var(--muted);
+      font-size: clamp(17px, 2vw, 21px);
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    .mini-card {
+      padding: 26px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.1), rgba(255,255,255,0.035));
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .browser-window {
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 20px;
+      overflow: hidden;
+      background: rgba(0,0,0,0.32);
+      min-height: 100%;
+    }
+
+    .browser-top {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px;
+      background: rgba(255,255,255,0.08);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      background: var(--danger);
+    }
+
+    .dot:nth-child(2) {
+      background: var(--warning);
+    }
+
+    .dot:nth-child(3) {
+      background: var(--accent-3);
+    }
+
+    .url {
+      margin-left: 8px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.08);
+      color: var(--muted);
+      font-size: 13px;
+      width: 100%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .browser-content {
+      padding: 22px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .rendered-title {
+      font-size: 26px;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+    }
+
+    .rendered-bar {
+      height: 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.12);
+      overflow: hidden;
+    }
+
+    .rendered-bar span {
+      display: block;
+      height: 100%;
+      width: 38%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      animation: loadingBar 2.3s ease-in-out infinite alternate;
+    }
+
+    @keyframes loadingBar {
+      from {
+        width: 28%;
+      }
+      to {
+        width: 92%;
+      }
+    }
+
+    .rendered-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    .rendered-box {
+      aspect-ratio: 1;
+      border-radius: 16px;
+      background:
+        linear-gradient(135deg, rgba(139,92,246,0.32), rgba(34,211,238,0.18)),
+        rgba(255,255,255,0.06);
+      animation: float 3s ease-in-out infinite;
+    }
+
+    .rendered-box:nth-child(2) {
+      animation-delay: 0.25s;
+    }
+
+    .rendered-box:nth-child(3) {
+      animation-delay: 0.5s;
+    }
+
+    @keyframes float {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-8px);
+      }
+    }
+
+    .section-title {
+      margin: 40px 0 16px;
+      font-size: clamp(28px, 4vw, 44px);
+      line-height: 1;
+      letter-spacing: -0.055em;
+    }
+
+    .subtitle {
+      margin: 0 0 24px;
+      color: var(--muted);
+      font-size: 17px;
+      line-height: 1.7;
+      max-width: 850px;
+    }
+
+    .comparison {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+      align-items: stretch;
+    }
+
+    .lane {
+      min-height: 560px;
+      padding: 24px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.1), rgba(255,255,255,0.035));
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .lane.native {
+      --lane-accent: var(--accent-3);
+    }
+
+    .lane.react {
+      --lane-accent: var(--accent-2);
+    }
+
+    .lane h3 {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0 0 8px;
+      font-size: 25px;
+      letter-spacing: -0.04em;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 26px;
+      min-width: 26px;
+      padding: 0 9px;
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--lane-accent) 22%, transparent);
+      border: 1px solid color-mix(in srgb, var(--lane-accent) 45%, transparent);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .lane-description {
+      margin: 0 0 22px;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .pipeline {
+      position: relative;
+      display: grid;
+      gap: 18px;
+      margin-top: 24px;
+    }
+
+    .step {
+      position: relative;
+      display: grid;
+      grid-template-columns: 58px 1fr;
+      gap: 14px;
+      align-items: center;
+      padding: 16px;
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.13);
+      background: rgba(0,0,0,0.22);
+      transition: 0.35s ease;
+      overflow: hidden;
+    }
+
+    .step::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--lane-accent) 18%, transparent), transparent);
+      transform: translateX(-100%);
+      opacity: 0;
+    }
+
+    .step.active {
+      transform: translateX(8px) scale(1.015);
+      border-color: color-mix(in srgb, var(--lane-accent) 70%, white 8%);
+      box-shadow: 0 16px 42px color-mix(in srgb, var(--lane-accent) 15%, transparent);
+    }
+
+    .step.active::before {
+      opacity: 1;
+      animation: shine 1s ease;
+    }
+
+    @keyframes shine {
+      to {
+        transform: translateX(100%);
+      }
+    }
+
+    .icon {
+      width: 54px;
+      height: 54px;
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
+      font-size: 26px;
+      background:
+        radial-gradient(circle at 30% 20%, rgba(255,255,255,0.45), transparent 30%),
+        color-mix(in srgb, var(--lane-accent) 35%, rgba(255,255,255,0.08));
+      border: 1px solid color-mix(in srgb, var(--lane-accent) 44%, transparent);
+    }
+
+    .step strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 17px;
+    }
+
+    .step span {
+      display: block;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .connector {
+      position: absolute;
+      left: 52px;
+      top: 97px;
+      bottom: 42px;
+      width: 2px;
+      background: linear-gradient(var(--lane-accent), transparent);
+      opacity: 0.45;
+    }
+
+    .packet {
+      position: absolute;
+      left: 43px;
+      top: 98px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--lane-accent);
+      box-shadow: 0 0 28px var(--lane-accent);
+      animation: packetMove 4.8s linear infinite;
+      z-index: 3;
+    }
+
+    @keyframes packetMove {
+      0% {
+        transform: translateY(0) scale(0.8);
+        opacity: 0;
+      }
+      8% {
+        opacity: 1;
+      }
+      88% {
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(400px) scale(1.15);
+        opacity: 0;
+      }
+    }
+
+    .code-panel {
+      margin-top: 24px;
+      border-radius: 24px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(0,0,0,0.38);
+      box-shadow: var(--shadow);
+    }
+
+    .code-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.06);
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .chip {
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.08);
+      color: #fff;
+    }
+
+    pre {
+      margin: 0;
+      padding: 18px;
+      overflow: auto;
+      min-height: 230px;
+      color: #dbeafe;
+      font-size: 13.5px;
+      line-height: 1.7;
+      tab-size: 2;
+    }
+
+    code {
+      font-family: "Cascadia Code", "Fira Code", Consolas, monospace;
+    }
+
+    .explain-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+      margin-top: 22px;
+    }
+
+    .explain-card {
+      padding: 22px;
+      border-radius: 24px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.065);
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .explain-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top right, rgba(139,92,246,0.18), transparent 40%);
+      pointer-events: none;
+    }
+
+    .explain-card h3 {
+      margin: 0 0 10px;
+      font-size: 20px;
+      letter-spacing: -0.035em;
+    }
+
+    .explain-card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .theatre {
+      margin-top: 28px;
+      padding: 28px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background:
+        linear-gradient(135deg, rgba(139,92,246,0.13), rgba(34,211,238,0.07)),
+        rgba(255,255,255,0.055);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .theatre-stage {
+      position: relative;
+      height: 280px;
+      border-radius: 24px;
+      background:
+        radial-gradient(circle at 50% 50%, rgba(255,255,255,0.08), transparent 32%),
+        rgba(0,0,0,0.25);
+      border: 1px solid rgba(255,255,255,0.12);
+      overflow: hidden;
+    }
+
+    .machine {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: min(440px, 86%);
+      height: 122px;
+      transform: translate(-50%, -50%);
+      border-radius: 34px;
+      border: 1px solid rgba(255,255,255,0.18);
+      background:
+        linear-gradient(135deg, rgba(255,255,255,0.16), rgba(255,255,255,0.055)),
+        rgba(0,0,0,0.38);
+      box-shadow: 0 30px 80px rgba(0,0,0,0.55);
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 20px;
+      z-index: 2;
+    }
+
+    .machine strong {
+      font-size: 25px;
+      letter-spacing: -0.05em;
+    }
+
+    .machine span {
+      margin-top: 6px;
+      display: block;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .flying-token {
+      position: absolute;
+      padding: 9px 12px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.09);
+      border: 1px solid rgba(255,255,255,0.16);
+      backdrop-filter: blur(12px);
+      font-family: "Cascadia Code", Consolas, monospace;
+      font-size: 13px;
+      box-shadow: 0 18px 38px rgba(0,0,0,0.35);
+    }
+
+    .token-a {
+      left: -120px;
+      top: 52px;
+      animation: flyLeft 5s linear infinite;
+    }
+
+    .token-b {
+      left: -150px;
+      bottom: 50px;
+      animation: flyLeft 5s linear infinite 1.2s;
+    }
+
+    .token-c {
+      right: -120px;
+      top: 58px;
+      animation: flyRight 5s linear infinite 0.4s;
+    }
+
+    .token-d {
+      right: -160px;
+      bottom: 46px;
+      animation: flyRight 5s linear infinite 1.7s;
+    }
+
+    @keyframes flyLeft {
+      0% {
+        transform: translateX(0) scale(0.88);
+        opacity: 0;
+      }
+      15%, 75% {
+        opacity: 1;
+      }
+      100% {
+        transform: translateX(calc(50vw + 230px)) scale(1);
+        opacity: 0;
+      }
+    }
+
+    @keyframes flyRight {
+      0% {
+        transform: translateX(0) scale(0.88);
+        opacity: 0;
+      }
+      15%, 75% {
+        opacity: 1;
+      }
+      100% {
+        transform: translateX(calc(-50vw - 230px)) scale(1);
+        opacity: 0;
+      }
+    }
+
+    .output-chip {
+      position: absolute;
+      left: 50%;
+      bottom: 26px;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+      z-index: 3;
+    }
+
+    .output-chip span {
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(52, 211, 153, 0.13);
+      border: 1px solid rgba(52, 211, 153, 0.34);
+      color: #bbf7d0;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    button {
+      appearance: none;
+      border: 0;
+      cursor: pointer;
+      padding: 13px 17px;
+      border-radius: 999px;
+      color: #fff;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      font-weight: 900;
+      box-shadow: 0 16px 40px rgba(139, 92, 246, 0.28);
+      transition: transform 0.2s ease, filter 0.2s ease;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.06);
+    }
+
+    button.secondary {
+      background: rgba(255,255,255,0.1);
+      box-shadow: none;
+      border: 1px solid rgba(255,255,255,0.15);
+    }
+
+    .status {
+      margin-top: 16px;
+      padding: 16px;
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.13);
+      background: rgba(0,0,0,0.22);
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .status strong {
+      color: #fff;
+    }
+
+    footer {
+      margin-top: 34px;
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.6;
+      font-size: 14px;
+    }
+
+    @media (max-width: 900px) {
+      header,
+      .comparison,
+      .explain-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero {
+        padding: 28px;
+      }
+
+      .lane {
+        min-height: auto;
+      }
+
+      .packet {
+        display: none;
+      }
+
+      .connector {
+        display: none;
+      }
+
+      .theatre-stage {
+        height: 340px;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .page {
+        width: min(100% - 22px, 1180px);
+        padding-top: 22px;
+      }
+
+      .hero,
+      .mini-card,
+      .lane,
+      .theatre {
+        border-radius: 22px;
+        padding: 20px;
+      }
+
+      .step {
+        grid-template-columns: 1fr;
+      }
+
+      .icon {
+        width: 48px;
+        height: 48px;
+      }
+
+      pre {
+        font-size: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <section class="hero">
+        <div class="eyebrow">
+          <span class="pulse-dot"></span>
+          Browser vs React build
+        </div>
+
+        <h1>
+          Il browser capisce il <span class="gradient">risultato finale</span>, non sempre il codice sorgente.
+        </h1>
+
+        <p class="lead">
+          HTML, CSS e JavaScript classici sono già nel formato che il browser può leggere.
+          React moderno, invece, spesso parte da JSX, moduli npm, import, TypeScript e asset:
+          prima deve passare dentro una “macchina” che lo trasforma in file browser-ready.
+        </p>
+      </section>
+
+      <aside class="mini-card">
+        <div class="browser-window">
+          <div class="browser-top">
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <div class="url">file:///index.html oppure http://localhost:5173</div>
+          </div>
+
+          <div class="browser-content">
+            <div class="rendered-title">Risultato nel browser</div>
+            <div class="rendered-bar"><span></span></div>
+            <div class="rendered-grid">
+              <div class="rendered-box"></div>
+              <div class="rendered-box"></div>
+              <div class="rendered-box"></div>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </header>
+
+    <section>
+      <h2 class="section-title">Due strade diverse per arrivare allo stesso punto</h2>
+      <p class="subtitle">
+        Alla fine il browser vuole sempre la stessa cosa: HTML, CSS e JavaScript standard.
+        La differenza è quanto lavoro serve prima di arrivare lì.
+      </p>
+
+      <div class="comparison">
+        <article class="lane native">
+          <h3><span class="badge">A</span> File HTML semplice</h3>
+          <p class="lane-description">
+            Qui il file che scrivi è già quasi il file finale. Il browser lo apre, legge i tag,
+            carica CSS e JS, costruisce il DOM e disegna la pagina.
+          </p>
+
+          <div class="pipeline" id="nativePipeline">
+            <div class="connector"></div>
+            <div class="packet"></div>
+
+            <div class="step active">
+              <div class="icon">📄</div>
+              <div>
+                <strong>index.html</strong>
+                <span>Contiene la struttura della pagina.</span>
+              </div>
+            </div>
+
+            <div class="step">
+              <div class="icon">🎨</div>
+              <div>
+                <strong>style.css</strong>
+                <span>Il browser interpreta direttamente le regole grafiche.</span>
+              </div>
+            </div>
+
+            <div class="step">
+              <div class="icon">⚙️</div>
+              <div>
+                <strong>script.js</strong>
+                <span>JavaScript standard eseguito direttamente dal motore JS del browser.</span>
+              </div>
+            </div>
+
+            <div class="step">
+              <div class="icon">🌐</div>
+              <div>
+                <strong>Browser</strong>
+                <span>Costruisce DOM, applica CSS, esegue JS e mostra la pagina.</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="code-panel">
+            <div class="code-head">
+              <span>Codice già leggibile dal browser</span>
+              <span class="chip">apri e parte</span>
+            </div>
+            <pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;link rel="stylesheet" href="style.css"&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;h1&gt;Ciao&lt;/h1&gt;
+    &lt;script src="script.js"&gt;&lt;/script&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</code></pre>
+          </div>
+        </article>
+
+        <article class="lane react">
+          <h3><span class="badge">B</span> Progetto React moderno</h3>
+          <p class="lane-description">
+            Qui tu scrivi codice più comodo per sviluppare, ma non sempre già digeribile
+            dal browser. Serve un tool che trasformi tutto.
+          </p>
+
+          <div class="pipeline" id="reactPipeline">
+            <div class="connector"></div>
+            <div class="packet"></div>
+
+            <div class="step active">
+              <div class="icon">⚛️</div>
+              <div>
+                <strong>Componenti React</strong>
+                <span>Scrivi componenti, stato, props, JSX e import.</span>
+              </div>
+            </div>
+
+            <div class="step">
+              <div class="icon">📦</div>
+              <div>
+                <strong>Dipendenze npm</strong>
+                <span>React, ReactDOM e altri pacchetti vengono presi da node_modules.</span>
+              </div>
+            </div>
+
+            <div class="step">
+              <div class="icon">🏗️</div>
+              <div>
+                <strong>Build tool</strong>
+                <span>Vite/Webpack/Parcel convertono JSX, risolvono import e preparano i file.</span>
+              </div>
+            </div>
+
+            <div class="step">
+              <div class="icon">🚀</div>
+              <div>
+                <strong>Bundle finale</strong>
+                <span>Il risultato diventa HTML, CSS e JavaScript standard.</span>
+              </div>
+            </div>
+
+            <div class="step">
+              <div class="icon">🌐</div>
+              <div>
+                <strong>Browser</strong>
+                <span>Ora sì: il browser riceve file che può caricare ed eseguire.</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="code-panel">
+            <div class="code-head">
+              <span>Codice sorgente React</span>
+              <span class="chip">prima va trasformato</span>
+            </div>
+            <pre><code>import { createRoot } from "react-dom/client";
+import "./style.css";
+
+function App() {
+  return &lt;h1&gt;Ciao&lt;/h1&gt;;
+}
+
+createRoot(document.getElementById("root")).render(&lt;App /&gt;);</code></pre>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="theatre">
+      <h2 class="section-title" style="margin-top:0;">La “macchina” della build</h2>
+      <p class="subtitle">
+        Immagina React come un laboratorio: tu gli dai file comodi per programmare,
+        lui li passa dentro una macchina che sputa fuori file adatti al browser.
+      </p>
+
+      <div class="theatre-stage">
+        <div class="flying-token token-a">&lt;App /&gt;</div>
+        <div class="flying-token token-b">import React</div>
+        <div class="flying-token token-c">index-8fa.js</div>
+        <div class="flying-token token-d">style-42b.css</div>
+
+        <div class="machine">
+          <div>
+            <strong>Build Tool</strong>
+            <span>trasforma JSX, risolve import, unisce file, ottimizza</span>
+          </div>
+        </div>
+
+        <div class="output-chip">
+          <span>HTML finale</span>
+          <span>CSS finale</span>
+          <span>JS finale</span>
+        </div>
+      </div>
+
+      <div class="controls">
+        <button id="replayBtn">Rivedi il flusso</button>
+        <button class="secondary" id="switchBtn">Mostra spiegazione breve</button>
+      </div>
+
+      <div class="status" id="status">
+        <strong>Idea chiave:</strong>
+        il browser non esegue “React come progetto”. Esegue il risultato della trasformazione:
+        file statici finali, cioè HTML, CSS e JavaScript standard.
+      </div>
+    </section>
+
+    <section>
+      <h2 class="section-title">Tradotto in parole semplici</h2>
+
+      <div class="explain-grid">
+        <div class="explain-card">
+          <h3>HTML classico</h3>
+          <p>
+            È come consegnare al browser un piatto già pronto. Deve solo servirlo:
+            legge la pagina, applica lo stile ed esegue lo script.
+          </p>
+        </div>
+
+        <div class="explain-card">
+          <h3>React sorgente</h3>
+          <p>
+            È come consegnare ingredienti e ricetta. Sono utilissimi per chi cucina,
+            ma il browser vuole il piatto già preparato.
+          </p>
+        </div>
+
+        <div class="explain-card">
+          <h3>Build finale</h3>
+          <p>
+            Il build tool cucina tutto: JSX, import npm, CSS, immagini e moduli
+            diventano file statici caricabili dal browser.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      In pratica: React non è “magico”. Alla fine anche lui deve diventare normale HTML, CSS e JavaScript.
+    </footer>
+  </main>
+
+  <script>
+    const nativeSteps = document.querySelectorAll("#nativePipeline .step");
+    const reactSteps = document.querySelectorAll("#reactPipeline .step");
+    const replayBtn = document.getElementById("replayBtn");
+    const switchBtn = document.getElementById("switchBtn");
+    const statusBox = document.getElementById("status");
+
+    const longText = `
+      <strong>Idea chiave:</strong>
+      il browser non esegue “React come progetto”. Esegue il risultato della trasformazione:
+      file statici finali, cioè HTML, CSS e JavaScript standard.
+    `;
+
+    const shortText = `
+      <strong>Super sintesi:</strong>
+      HTML/CSS/JS classici sono già pronti. React moderno è codice sorgente:
+      prima passa da npm + build tool, poi diventa file che il browser capisce.
+    `;
+
+    let showingShort = false;
+
+    function animatePipeline(steps, delay = 0) {
+      steps.forEach(step => step.classList.remove("active"));
+
+      steps.forEach((step, index) => {
+        setTimeout(() => {
+          steps.forEach(s => s.classList.remove("active"));
+          step.classList.add("active");
+        }, delay + index * 720);
+      });
+
+      setTimeout(() => {
+        steps.forEach(s => s.classList.remove("active"));
+        steps[steps.length - 1].classList.add("active");
+      }, delay + steps.length * 720);
+    }
+
+    function replay() {
+      animatePipeline(nativeSteps, 0);
+      animatePipeline(reactSteps, 260);
+    }
+
+    replayBtn.addEventListener("click", replay);
+
+    switchBtn.addEventListener("click", () => {
+      showingShort = !showingShort;
+      statusBox.innerHTML = showingShort ? shortText : longText;
+      switchBtn.textContent = showingShort ? "Mostra spiegazione completa" : "Mostra spiegazione breve";
+    });
+
+    replay();
+
+    setInterval(replay, 7200);
+  </script>
+</body>
+</html>
