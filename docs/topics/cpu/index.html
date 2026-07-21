@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulazione Architettura CPU & RAM Avanzata</title>
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: #151d2a;
+            --card-border: #26334d;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --accent-blue: #38bdf8;
+            --accent-green: #4ade80;
+            --accent-purple: #c084fc;
+            --accent-amber: #fbbf24;
+            --accent-red: #f87171;
+            --accent-pink: #f472b6;
+            --bus-default: #1e293b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        header h1 {
+            font-size: 1.8rem;
+            color: var(--accent-blue);
+            margin-bottom: 4px;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        /* Controls Panel */
+        .controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+            background: var(--card-bg);
+            padding: 12px 20px;
+            border-radius: 12px;
+            border: 1px solid var(--card-border);
+            flex-wrap: wrap;
+            z-index: 100;
+        }
+
+        .mode-selector {
+            display: flex;
+            gap: 6px;
+            background: #0f172a;
+            padding: 4px;
+            border-radius: 8px;
+            border: 1px solid var(--card-border);
+        }
+
+        .mode-btn {
+            background: transparent;
+            color: var(--text-muted);
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+
+        .mode-btn.active {
+            background: var(--accent-blue);
+            color: #0f172a;
+        }
+
+        .btn {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 7px 14px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover { background: #1d4ed8; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-secondary { background: #475569; }
+        .btn-secondary:hover { background: #334155; }
+        .btn-reset { background: #dc2626; }
+        .btn-reset:hover { background: #b91c1c; }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        /* Canvas Toolbar Controls */
+        .canvas-toolbar {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            display: flex;
+            gap: 6px;
+            z-index: 50;
+            background: rgba(15, 23, 42, 0.85);
+            padding: 6px;
+            border-radius: 8px;
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(4px);
+        }
+
+        .canvas-btn {
+            background: #1e293b;
+            color: var(--text-main);
+            border: 1px solid var(--card-border);
+            width: 30px;
+            height: 30px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+        .canvas-btn:hover { background: #334155; }
+
+        /* Viewport Canvas Navigabile */
+        .viewport-container {
+            position: relative;
+            width: 100%;
+            max-width: 1400px;
+            height: 620px;
+            margin: 0 auto;
+            background: #060911;
+            border: 2px solid var(--card-border);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 30px rgba(0, 0, 0, 0.6);
+            cursor: grab;
+        }
+
+        .viewport-container:active {
+            cursor: grabbing;
+        }
+
+        .canvas-world {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transform-origin: 0 0;
+            transition: transform 0.05s ease-out;
+        }
+
+        /* Diagram Canvas Base */
+        .architecture-container {
+            position: absolute;
+            width: 1400px;
+            top: 30px;
+            left: 40px;
+            display: grid;
+            grid-template-columns: 210px 1fr 200px;
+            gap: 70px;
+            padding: 10px;
+            align-items: start;
+        }
+
+        /* External Systems Column (RAM & IO) */
+        .external-col {
+            display: flex;
+            flex-direction: column;
+            gap: 50px;
+        }
+
+        /* Component Card: Sovrastano i segmenti, altezze compatte, padding aumentato */
+        .component-card {
+            background: var(--card-bg);
+            border: 1.5px solid var(--card-border);
+            border-radius: 10px;
+            padding: 12px 14px;
+            position: relative;
+            transition: all 0.3s ease;
+            z-index: 10;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            height: auto; /* Altezza adattiva al contenuto */
+        }
+
+        .component-card.active {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 18px rgba(56, 189, 248, 0.4);
+        }
+
+        .component-card h3 {
+            font-size: 0.85rem;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .component-card p {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            line-height: 1.3;
+        }
+
+        .value-badge {
+            background: #080c14;
+            border: 1px solid var(--card-border);
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.75rem;
+            color: var(--accent-green);
+            margin-top: 6px;
+            display: block;
+            word-break: break-all;
+        }
+
+        /* Dual Core Wrapper con larghezza ed interni aumentati */
+        .cpu-wrapper {
+            border: 2px dashed #3b82f6;
+            border-radius: 14px;
+            padding: 24px;
+            background: rgba(15, 23, 42, 0.6);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            z-index: 5;
+        }
+
+        .cpu-title-badge {
+            position: absolute;
+            top: -11px;
+            left: 20px;
+            background: #2563eb;
+            color: white;
+            padding: 2px 10px;
+            border-radius: 8px;
+            font-size: 0.72rem;
+            font-weight: bold;
+            letter-spacing: 0.8px;
+        }
+
+        .cores-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 30px;
+        }
+
+        .cores-container.dual {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .core-box {
+            border: 1px solid #334155;
+            background: rgba(30, 41, 59, 0.35);
+            border-radius: 12px;
+            padding: 18px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .core-tag {
+            font-size: 0.7rem;
+            font-weight: bold;
+            color: var(--accent-blue);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .core-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px; /* Più spazio tra la colonna CU e ALU */
+            align-items: start;
+        }
+
+        .registers-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4px;
+            margin-top: 4px;
+        }
+
+        .reg-item {
+            background: #080c14;
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-size: 0.72rem;
+            font-family: monospace;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* SVG Bus Overlay */
+        #bus-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .bus-line-static {
+            stroke: var(--bus-default);
+            stroke-width: 2.5;
+            fill: none;
+            stroke-dasharray: 4;
+            opacity: 0.6;
+        }
+
+        .bus-line-active {
+            stroke: var(--accent-blue);
+            stroke-width: 4;
+            fill: none;
+            transition: stroke 0.3s ease, stroke-width 0.3s ease, filter 0.3s ease;
+            filter: drop-shadow(0 0 6px var(--accent-blue));
+        }
+
+        .bus-line-active.control {
+            stroke: var(--accent-purple);
+            stroke-width: 4;
+            stroke-dasharray: 6;
+            animation: dash 0.8s linear infinite;
+            filter: drop-shadow(0 0 6px var(--accent-purple));
+        }
+
+        @keyframes dash {
+            to { stroke-dashoffset: -24; }
+        }
+
+        /* Info Log Box */
+        .log-panel {
+            max-width: 1400px;
+            margin: 12px auto 0;
+            width: 100%;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 12px 18px;
+        }
+
+        .log-panel h2 {
+            font-size: 0.9rem;
+            color: var(--accent-blue);
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .step-display {
+            background: #080c14;
+            border-left: 4px solid var(--accent-blue);
+            padding: 10px 14px;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .step-title {
+            font-weight: bold;
+            color: var(--accent-amber);
+            font-size: 0.88rem;
+            margin-bottom: 3px;
+        }
+
+        .step-desc {
+            font-size: 0.8rem;
+            color: var(--text-main);
+            line-height: 1.35;
+        }
+
+        /* Component-specific borders */
+        .comp-ram { border-color: var(--accent-purple) !important; }
+        .comp-io-in { border-color: #64748b !important; }
+        .comp-io-out { border-color: var(--accent-amber) !important; }
+        .comp-cu { border-color: var(--accent-pink) !important; }
+        .comp-pc { border-color: var(--accent-blue) !important; }
+        .comp-alu { border-color: var(--accent-red) !important; }
+        .comp-reg { border-color: var(--accent-green) !important; }
+
+        /* Memory table view for RAM */
+        .ram-table {
+            font-family: monospace;
+            font-size: 0.68rem;
+            margin-top: 5px;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .ram-table td {
+            padding: 2px 4px;
+            border: 1px solid var(--card-border);
+        }
+
+        .ram-table tr.active-cell {
+            background: rgba(192, 132, 252, 0.25);
+            color: var(--accent-purple);
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Simulatore Architettura CPU & Architettura di Von Neumann</h1>
+        <p>Visualizzazione del bus e coordinamento della Control Unit (Singolo e Dual-Core)</p>
+    </header>
+
+    <div class="controls">
+        <div class="mode-selector">
+            <button id="mode-single" class="mode-btn active" onclick="switchMode('single_ram')">1. CPU Single-Core + RAM</button>
+            <button id="mode-dual" class="mode-btn" onclick="switchMode('dual_core')">2. CPU Dual-Core (Parallelismo)</button>
+        </div>
+
+        <button id="btn-start" class="btn" onclick="startSimulation()">▶ Avvia</button>
+        <button id="btn-step" class="btn btn-secondary" onclick="nextStep()">⏭ Passo Singolo</button>
+        <button id="btn-reset" class="btn btn-reset" onclick="resetSimulation()">↺ Ripristina</button>
+        
+        <div class="speed-control">
+            <label for="speed">Velocità:</label>
+            <input type="range" id="speed" min="600" max="2500" step="200" value="1400" onchange="stepDelay = parseInt(this.value)">
+        </div>
+    </div>
+
+    <!-- Viewport Canvas Navigabile -->
+    <div class="viewport-container" id="viewport">
+        <div class="canvas-toolbar">
+            <button class="canvas-btn" onclick="zoomIn()">+</button>
+            <button class="canvas-btn" onclick="zoomOut()">-</button>
+            <button class="canvas-btn" title="Reset Vista" onclick="resetZoom()">⟲</button>
+        </div>
+
+        <div class="canvas-world" id="canvas-world">
+            <div class="architecture-container" id="arch-container">
+                <svg id="bus-svg"></svg>
+
+                <!-- Left Column: RAM & Input -->
+                <div class="external-col">
+                    <div id="comp-ram" class="component-card comp-ram">
+                        <h3>🧠 Memoria RAM</h3>
+                        <p>Mantiene istruzioni e dati condivisi.</p>
+                        <table class="ram-table">
+                            <tr id="ram-addr-10"><td>0x10</td><td>LOAD [0x20]</td></tr>
+                            <tr id="ram-addr-11"><td>0x11</td><td>ADD [0x21]</td></tr>
+                            <tr id="ram-addr-12"><td>0x12</td><td>STORE [0x22]</td></tr>
+                            <tr id="ram-addr-20"><td>0x20</td><td>Dato: 12</td></tr>
+                            <tr id="ram-addr-21"><td>0x21</td><td>Dato: 8</td></tr>
+                            <tr id="ram-addr-22"><td>0x22</td><td>Dato: <span id="ram-val-22">0</span></td></tr>
+                        </table>
+                    </div>
+
+                    <div id="comp-in" class="component-card comp-io-in">
+                        <h3>📥 Tastiera / Input</h3>
+                        <p>Invia il comando di avvio programma.</p>
+                        <div class="value-badge">Segnale: START</div>
+                    </div>
+                </div>
+
+                <!-- Center Column: CPU (Core 0 + Core 1) -->
+                <div class="cpu-wrapper">
+                    <div class="cpu-title-badge">Microprocessore (CPU)</div>
+                    
+                    <div class="cores-container" id="cores-container">
+                        <!-- CORE 0 -->
+                        <div class="core-box" id="core-0">
+                            <div class="core-tag">Core 0</div>
+                            <div class="core-grid">
+                                <div style="display:flex; flex-direction:column; gap:16px;">
+                                    <div id="c0-pc" class="component-card comp-pc">
+                                        <h3>⏱️ Program Counter</h3>
+                                        <div class="value-badge" id="c0-val-pc">PC: 0x10</div>
+                                    </div>
+                                    <div id="c0-cu" class="component-card comp-cu">
+                                        <h3>🕹️ Control Unit (CU)</h3>
+                                        <p>Direttore d'orchestra del Core.</p>
+                                        <div class="value-badge" id="c0-val-cu">IDLE</div>
+                                    </div>
+                                </div>
+                                <div style="display:flex; flex-direction:column; gap:16px;">
+                                    <div id="c0-reg" class="component-card comp-reg">
+                                        <h3>📁 Registri</h3>
+                                        <div class="registers-list">
+                                            <div class="reg-item"><span>R1:</span> <span id="c0-reg-r1">0</span></div>
+                                            <div class="reg-item"><span>R2:</span> <span id="c0-reg-r2">0</span></div>
+                                            <div class="reg-item" style="grid-column:span 2"><span>ACC:</span> <span id="c0-reg-acc">0</span></div>
+                                        </div>
+                                    </div>
+                                    <div id="c0-alu" class="component-card comp-alu">
+                                        <h3>🧮 ALU</h3>
+                                        <div class="value-badge" id="c0-val-alu">NOP</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- CORE 1 -->
+                        <div class="core-box" id="core-1" style="display:none;">
+                            <div class="core-tag" style="color:var(--accent-purple);">Core 1 (Task parallelo: MOLTIPLICAZIONE)</div>
+                            <div class="core-grid">
+                                <div style="display:flex; flex-direction:column; gap:16px;">
+                                    <div id="c1-pc" class="component-card comp-pc">
+                                        <h3>⏱️ Program Counter</h3>
+                                        <div class="value-badge" id="c1-val-pc">PC: 0x50</div>
+                                    </div>
+                                    <div id="c1-cu" class="component-card comp-cu">
+                                        <h3>🕹️ Control Unit</h3>
+                                        <div class="value-badge" id="c1-val-cu">IDLE</div>
+                                    </div>
+                                </div>
+                                <div style="display:flex; flex-direction:column; gap:16px;">
+                                    <div id="c1-reg" class="component-card comp-reg">
+                                        <h3>📁 Registri</h3>
+                                        <div class="registers-list">
+                                            <div class="reg-item"><span>R1:</span> <span id="c1-reg-r1">4</span></div>
+                                            <div class="reg-item"><span>R2:</span> <span id="c1-reg-r2">5</span></div>
+                                            <div class="reg-item" style="grid-column:span 2"><span>ACC:</span> <span id="c1-reg-acc">0</span></div>
+                                        </div>
+                                    </div>
+                                    <div id="c1-alu" class="component-card comp-alu">
+                                        <h3>🧮 ALU</h3>
+                                        <div class="value-badge" id="c1-val-alu">MUL</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Output -->
+                <div class="external-col">
+                    <div id="comp-out" class="component-card comp-io-out">
+                        <h3>📤 Schermo / Output</h3>
+                        <p>Mostra il dato finale scritto in RAM o restituito.</p>
+                        <div class="value-badge" id="val-out">Display: --</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Explanatory Panel -->
+    <div class="log-panel">
+        <h2>
+            <span>ℹ️ Spiegazione Passaggio Corrente</span>
+            <span id="step-counter" style="font-size:0.85rem; color:var(--text-muted);">Passo 0/0</span>
+        </h2>
+        <div class="step-display">
+            <div class="step-title" id="step-title">Pronto per la simulazione</div>
+            <div class="step-desc" id="step-desc">Seleziona una modalità e premi "Avvia" o "Passo Singolo" per osservare le linee del bus illuminate e il coordinamento costante della Control Unit.</div>
+        </div>
+    </div>
+
+    <script>
+        let currentMode = 'single_ram';
+        let currentStepIndex = -1;
+        let isRunning = false;
+        let timer = null;
+        let stepDelay = 1400;
+
+        const allPossibleBusses = [
+            { from: "comp-in", to: "c0-cu" },
+            { from: "c0-pc", to: "comp-ram" },
+            { from: "c0-cu", to: "comp-ram" },
+            { from: "comp-ram", to: "c0-reg" },
+            { from: "c0-cu", to: "c0-reg" },
+            { from: "c0-cu", to: "c0-alu" },
+            { from: "c0-reg", to: "c0-alu" },
+            { from: "c0-alu", to: "c0-reg" },
+            { from: "c0-reg", to: "comp-ram" },
+            { from: "c0-cu", to: "comp-out" },
+            { from: "comp-ram", to: "comp-out" },
+            { from: "c1-pc", to: "comp-ram" },
+            { from: "c1-cu", to: "c1-alu" },
+            { from: "c1-reg", to: "c1-alu" },
+            { from: "c1-cu", to: "comp-out" },
+            { from: "c1-reg", to: "comp-out" }
+        ];
+
+        const singleCoreSteps = [
+            {
+                title: "1. Avvio da Input & Fetch Istruzione da RAM",
+                desc: "L'Input manda il segnale di START alla CU. La CU legge il PC (0x10) e richiede alla RAM l'istruzione all'indirizzo 0x10 ('LOAD [0x20]'). La CU si attiva SEMPRE perché è il direttore che coordina le richieste e invia i segnali di abilitazione bus.",
+                activeComponents: ["comp-in", "c0-cu", "c0-pc", "comp-ram"],
+                busLines: [
+                    { from: "comp-in", to: "c0-cu", type: "control" },
+                    { from: "c0-pc", to: "comp-ram", type: "data" },
+                    { from: "c0-cu", to: "comp-ram", type: "control" }
+                ],
+                highlightRam: "ram-addr-10",
+                action: () => {
+                    document.getElementById("c0-val-cu").innerText = "Fetch 0x10";
+                }
+            },
+            {
+                title: "2. Decodifica CU & Lettura Dato da RAM in Registro R1",
+                desc: "La CU decodifica 'LOAD [0x20]': ordina alla RAM di inviare il dato presente a 0x20 (valore 12) verso il Registro R1 del Core 0. Nota: Il collegamento tra CU e Registri si illumina per segnalare l'ordine di scrittura.",
+                activeComponents: ["c0-cu", "comp-ram", "c0-reg"],
+                busLines: [
+                    { from: "comp-ram", to: "c0-reg", type: "data" },
+                    { from: "c0-cu", to: "c0-reg", type: "control" }
+                ],
+                highlightRam: "ram-addr-20",
+                action: () => {
+                    document.getElementById("c0-reg-r1").innerText = "12";
+                    document.getElementById("c0-val-pc").innerText = "PC: 0x11";
+                    document.getElementById("c0-val-cu").innerText = "LOAD R1, [0x20]";
+                }
+            },
+            {
+                title: "3. Fetch & Decodifica Istruzione ADD da RAM",
+                desc: "Il PC ora punta a 0x11. La CU richiede l'istruzione 'ADD [0x21]' dalla RAM. Successivamente la CU richiede dalla RAM il dato all'indirizzo 0x21 (valore 8) e lo indirizza a R2.",
+                activeComponents: ["c0-pc", "c0-cu", "comp-ram", "c0-reg"],
+                busLines: [
+                    { from: "c0-pc", to: "comp-ram", type: "data" },
+                    { from: "c0-cu", to: "c0-reg", type: "control" },
+                    { from: "comp-ram", to: "c0-reg", type: "data" }
+                ],
+                highlightRam: "ram-addr-11",
+                action: () => {
+                    document.getElementById("c0-reg-r2").innerText = "8";
+                    document.getElementById("c0-val-pc").innerText = "PC: 0x12";
+                    document.getElementById("c0-val-cu").innerText = "ADD R1, R2";
+                }
+            },
+            {
+                title: "4. Esecuzione Aritmetica nell'ALU",
+                desc: "La CU invia un segnale di controllo all'ALU per attivare l'operazione di Somma (ADD). L'ALU preleva R1 (12) e R2 (8) ed esegue 12 + 8 = 20, memorizzando il risultato temporaneo nell'Accumulatore (ACC).",
+                activeComponents: ["c0-cu", "c0-reg", "c0-alu"],
+                busLines: [
+                    { from: "c0-cu", to: "c0-alu", type: "control" },
+                    { from: "c0-reg", to: "c0-alu", type: "data" },
+                    { from: "c0-alu", to: "c0-reg", type: "data" }
+                ],
+                highlightRam: null,
+                action: () => {
+                    document.getElementById("c0-val-alu").innerText = "12 + 8 = 20";
+                    document.getElementById("c0-reg-acc").innerText = "20";
+                }
+            },
+            {
+                title: "5. Writeback: Salvataggio Risultato in RAM (STORE [0x22])",
+                desc: "La CU legge l'istruzione 0x12 'STORE [0x22]'. La CU coordina il trasferimento del valore dall'Accumulatore (20) direttamente alla cella RAM 0x22.",
+                activeComponents: ["c0-cu", "c0-reg", "comp-ram"],
+                busLines: [
+                    { from: "c0-cu", to: "comp-ram", type: "control" },
+                    { from: "c0-reg", to: "comp-ram", type: "data" }
+                ],
+                highlightRam: "ram-addr-22",
+                action: () => {
+                    document.getElementById("ram-val-22").innerText = "20";
+                    document.getElementById("c0-val-cu").innerText = "STORE 20 -> 0x22";
+                }
+            },
+            {
+                title: "6. Emissione Output sullo Schermo (Perché la CU si attiva?)",
+                desc: "Perché la CU si attiva anche all'output? Perché le periferiche esterne (schermo, disco) non possono accedere direttamente ai bus. È la CU che invia il segnale di 'Write Output' ed emette i dati della RAM/Registri verso il controller del Display.",
+                activeComponents: ["c0-cu", "comp-ram", "comp-out"],
+                busLines: [
+                    { from: "c0-cu", to: "comp-out", type: "control" },
+                    { from: "comp-ram", to: "comp-out", type: "data" }
+                ],
+                highlightRam: "ram-addr-22",
+                action: () => {
+                    document.getElementById("val-out").innerText = "Risultato: 20";
+                    document.getElementById("c0-val-cu").innerText = "COMPLETE (IDLE)";
+                }
+            }
+        ];
+
+        const dualCoreSteps = [
+            {
+                title: "1. Assegnazione Task e Fetch Indipendente nei 2 Core",
+                desc: "In un sistema Multi-Core, ogni Core ha la propria Control Unit, registri e ALU. Core 0 elabora un programma di somma (RAM 0x10), mentre Core 1 elabora una moltiplicazione indipendente in parallelo.",
+                activeComponents: ["c0-cu", "c1-cu", "comp-ram"],
+                busLines: [
+                    { from: "c0-pc", to: "comp-ram", type: "data" },
+                    { from: "c1-pc", to: "comp-ram", type: "data" }
+                ],
+                highlightRam: "ram-addr-10",
+                action: () => {
+                    document.getElementById("c0-val-cu").innerText = "Exec Somma";
+                    document.getElementById("c1-val-cu").innerText = "Exec Moltiplica";
+                }
+            },
+            {
+                title: "2. Calcolo Simultaneo / Parallelo (ALU Core 0 + ALU Core 1)",
+                desc: "Senza intralciarsi, l'ALU del Core 0 esegue 12 + 8 (risultato 20), mentre l'ALU del Core 1 calcola contemporaneamente 4 * 5 (risultato 20). Le due CU controllano le rispettive risorse interne.",
+                activeComponents: ["c0-alu", "c0-reg", "c1-alu", "c1-reg", "c0-cu", "c1-cu"],
+                busLines: [
+                    { from: "c0-cu", to: "c0-alu", type: "control" },
+                    { from: "c1-cu", to: "c1-alu", type: "control" },
+                    { from: "c0-reg", to: "c0-alu", type: "data" },
+                    { from: "c1-reg", to: "c1-alu", type: "data" }
+                ],
+                highlightRam: null,
+                action: () => {
+                    document.getElementById("c0-reg-acc").innerText = "20";
+                    document.getElementById("c0-val-alu").innerText = "12 + 8 = 20";
+                    document.getElementById("c1-reg-acc").innerText = "20";
+                    document.getElementById("c1-val-alu").innerText = "4 * 5 = 20";
+                }
+            },
+            {
+                title: "3. Scrittura e Coordinamento Output Multiplo",
+                desc: "Entrambi i Core trasmettono i risultati finali. Core 0 aggiorna la RAM a 0x22, mentre Core 1 invia direttamente al display il risultato per l'utente. Le due Control Unit prevengono conflitti sul bus dati condiviso.",
+                activeComponents: ["c0-cu", "c1-cu", "comp-ram", "comp-out"],
+                busLines: [
+                    { from: "c0-cu", to: "comp-ram", type: "control" },
+                    { from: "c0-reg", to: "comp-ram", type: "data" },
+                    { from: "c1-cu", to: "comp-out", type: "control" },
+                    { from: "c1-reg", to: "comp-out", type: "data" }
+                ],
+                highlightRam: "ram-addr-22",
+                action: () => {
+                    document.getElementById("ram-val-22").innerText = "20";
+                    document.getElementById("val-out").innerText = "Core1 Out: 20";
+                }
+            }
+        ];
+
+        /* Pan & Zoom Canvas Management */
+        let scale = 0.82;
+        let panX = 15;
+        let panY = 10;
+        let isDragging = false;
+        let startX, startY;
+
+        const viewport = document.getElementById('viewport');
+        const world = document.getElementById('canvas-world');
+
+        function updateTransform() {
+            world.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`;
+        }
+
+        viewport.addEventListener('mousedown', (e) => {
+            if (e.target.closest('.canvas-toolbar')) return;
+            isDragging = true;
+            startX = e.clientX - panX;
+            startY = e.clientY - panY;
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            panX = e.clientX - startX;
+            panY = e.clientY - startY;
+            updateTransform();
+        });
+
+        window.addEventListener('mouseup', () => { isDragging = false; });
+
+        viewport.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const zoomFactor = 0.08;
+            if (e.deltaY < 0) {
+                scale = Math.min(scale + zoomFactor, 1.8);
+            } else {
+                scale = Math.max(scale - zoomFactor, 0.4);
+            }
+            updateTransform();
+        });
+
+        function zoomIn() { scale = Math.min(scale + 0.15, 1.8); updateTransform(); }
+        function zoomOut() { scale = Math.max(scale - 0.15, 0.4); updateTransform(); }
+        function resetZoom() { scale = 0.82; panX = 15; panY = 10; updateTransform(); }
+
+        /* Logic Functions */
+        function getSteps() {
+            return currentMode === 'single_ram' ? singleCoreSteps : dualCoreSteps;
+        }
+
+        function switchMode(mode) {
+            resetSimulation();
+            currentMode = mode;
+            document.getElementById('mode-single').classList.toggle('active', mode === 'single_ram');
+            document.getElementById('mode-dual').classList.toggle('active', mode === 'dual_core');
+            
+            const coresContainer = document.getElementById('cores-container');
+            const core1 = document.getElementById('core-1');
+            
+            if (mode === 'dual_core') {
+                coresContainer.classList.add('dual');
+                core1.style.display = 'flex';
+            } else {
+                coresContainer.classList.remove('dual');
+                core1.style.display = 'none';
+            }
+            
+            setTimeout(drawBusses, 50);
+        }
+
+        function getElemCenter(id) {
+            const container = document.getElementById('arch-container').getBoundingClientRect();
+            const elem = document.getElementById(id).getBoundingClientRect();
+            return {
+                x: (elem.left + elem.width / 2 - container.left) / scale,
+                y: (elem.top + elem.height / 2 - container.top) / scale
+            };
+        }
+
+        function drawBusses() {
+            const svg = document.getElementById('bus-svg');
+            svg.innerHTML = '';
+
+            const steps = getSteps();
+            const currentStepData = (currentStepIndex >= 0 && currentStepIndex < steps.length) ? steps[currentStepIndex] : null;
+
+            allPossibleBusses.forEach(line => {
+                const elFrom = document.getElementById(line.from);
+                const elTo = document.getElementById(line.to);
+                
+                if (!elFrom || !elTo || elFrom.offsetParent === null || elTo.offsetParent === null) return;
+
+                const p1 = getElemCenter(line.from);
+                const p2 = getElemCenter(line.to);
+
+                const midX = (p1.x + p2.x) / 2;
+                const d = `M ${p1.x} ${p1.y} L ${midX} ${p1.y} L ${midX} ${p2.y} L ${p2.x} ${p2.y}`;
+
+                const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                path.setAttribute("d", d);
+                path.setAttribute("class", "bus-line-static");
+                svg.appendChild(path);
+            });
+
+            if (currentStepData) {
+                currentStepData.busLines.forEach(line => {
+                    const p1 = getElemCenter(line.from);
+                    const p2 = getElemCenter(line.to);
+
+                    const midX = (p1.x + p2.x) / 2;
+                    const d = `M ${p1.x} ${p1.y} L ${midX} ${p1.y} L ${midX} ${p2.y} L ${p2.x} ${p2.y}`;
+
+                    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                    path.setAttribute("d", d);
+                    path.setAttribute("class", `bus-line-active ${line.type === 'control' ? 'control' : ''}`);
+                    svg.appendChild(path);
+                });
+            }
+        }
+
+        function highlightComponents(compIds) {
+            document.querySelectorAll('.component-card').forEach(c => c.classList.remove('active'));
+            compIds.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.add('active');
+            });
+        }
+
+        function highlightRamRow(rowId) {
+            document.querySelectorAll('.ram-table tr').forEach(tr => tr.classList.remove('active-cell'));
+            if (rowId) {
+                const tr = document.getElementById(rowId);
+                if (tr) tr.classList.add('active-cell');
+            }
+        }
+
+        function nextStep() {
+            const steps = getSteps();
+            if (currentStepIndex < steps.length - 1) {
+                currentStepIndex++;
+                const step = steps[currentStepIndex];
+
+                highlightComponents(step.activeComponents);
+                highlightRamRow(step.highlightRam);
+                
+                document.getElementById('step-title').innerText = step.title;
+                document.getElementById('step-desc').innerText = step.desc;
+                document.getElementById('step-counter').innerText = `Passo ${currentStepIndex + 1}/${steps.length}`;
+
+                step.action();
+                drawBusses();
+            } else {
+                stopSimulation();
+                document.getElementById('step-title').innerText = "Ciclo Completato";
+                document.getElementById('step-desc').innerText = "Esecuzione completata. Premi Ripristina per selezionare un altro scenario o riavviare.";
+            }
+        }
+
+        function startSimulation() {
+            if (isRunning) return;
+            const steps = getSteps();
+            if (currentStepIndex >= steps.length - 1) {
+                resetSimulation();
+            }
+            isRunning = true;
+            document.getElementById('btn-start').disabled = true;
+            document.getElementById('btn-step').disabled = true;
+
+            nextStep();
+            timer = setInterval(() => {
+                const steps = getSteps();
+                if (currentStepIndex < steps.length - 1) {
+                    nextStep();
+                } else {
+                    stopSimulation();
+                }
+            }, stepDelay + 400);
+        }
+
+        function stopSimulation() {
+            isRunning = false;
+            clearInterval(timer);
+            document.getElementById('btn-start').disabled = false;
+            document.getElementById('btn-step').disabled = false;
+        }
+
+        function resetSimulation() {
+            stopSimulation();
+            currentStepIndex = -1;
+            highlightComponents([]);
+            highlightRamRow(null);
+
+            // Reset Single Core
+            document.getElementById('c0-val-pc').innerText = "PC: 0x10";
+            document.getElementById('c0-val-cu').innerText = "IDLE";
+            document.getElementById('c0-val-alu').innerText = "NOP";
+            document.getElementById('c0-reg-r1').innerText = "0";
+            document.getElementById('c0-reg-r2').innerText = "0";
+            document.getElementById('c0-reg-acc').innerText = "0";
+
+            // Reset Dual Core (R2 corretto a 5)
+            document.getElementById('c1-val-pc').innerText = "PC: 0x50";
+            document.getElementById('c1-val-cu').innerText = "IDLE";
+            document.getElementById('c1-val-alu').innerText = "MUL";
+            document.getElementById('c1-reg-r1').innerText = "4";
+            document.getElementById('c1-reg-r2').innerText = "5";
+            document.getElementById('c1-reg-acc').innerText = "0";
+
+            document.getElementById('ram-val-22').innerText = "0";
+            document.getElementById('val-out').innerText = "Display: --";
+
+            document.getElementById('step-title').innerText = "Pronto per la simulazione";
+            document.getElementById('step-desc').innerText = "Seleziona una modalità e premi Avvia per osservare il comportamento dei bus ed il coordinamento della Control Unit.";
+            document.getElementById('step-counter').innerText = `Passo 0/${getSteps().length}`;
+
+            drawBusses();
+        }
+
+        window.addEventListener('load', () => {
+            updateTransform();
+            drawBusses();
+        });
+
+        window.addEventListener('resize', () => {
+            drawBusses();
+        });
+    </script>
+</body>
+</html>

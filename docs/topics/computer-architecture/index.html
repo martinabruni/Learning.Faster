@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dalla Fisica della Materia ai Computer</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --panel: #1e293b;
+            --accent: #38bdf8;
+            --text: #f8fafc;
+            --wire-off: #475569;
+            --wire-on: #ef4444;
+            --active-glow: 0 0 15px #ef4444;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        h1, h2, h3 { color: var(--accent); }
+        
+        .section {
+            background: var(--panel);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3);
+        }
+
+        .interactive-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #090d16;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        svg {
+            background: #0d1322;
+            border-radius: 8px;
+            border: 1px solid #334155;
+        }
+
+        .btn {
+            background: var(--accent);
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 5px;
+            transition: all 0.2s;
+        }
+
+        .btn:hover { opacity: 0.9; transform: scale(1.02); }
+        .btn-toggle { background: #334155; color: #fff; }
+        .btn-toggle.active { background: #ef4444; box-shadow: var(--active-glow); }
+
+        /* Animazioni SVG */
+        .electron {
+            fill: #38bdf8;
+            animation: flow 1.5s linear infinite;
+        }
+
+        @keyframes flow {
+            from { stroke-dashoffset: 20; }
+            to { stroke-dashoffset: 0; }
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Dalla Fisica al Calcolo Binario</h1>
+    <p>Guida interattiva per comprendere l'evoluzione dell'hardware digitale.</p>
+
+    <!-- SEZIONE 1: TRANSISTOR -->
+    <div class="section">
+        <h2>1. Il Transistor MOSFET (Interruttore Fisico)</h2>
+        <p>
+            Il transistor ha 3 pin: <strong>Gate</strong> (Comando), <strong>Source</strong> (Ingresso corrente) e <strong>Drain</strong> (Uscita corrente).
+            La tensione applicata al Gate crea un <em>campo elettrico</em> che "attira" cariche negative creando un canale di silicio conduttivo.
+        </p>
+
+        <div class="interactive-box">
+            <svg width="400" height="220" id="transistor-svg">
+                <!-- Silicio P (Base) -->
+                <rect x="50" y="100" width="300" height="90" fill="#1e1b4b" stroke="#4338ca" stroke-width="2"/>
+                <text x="170" y="150" fill="#818cf8" font-size="12">Silicio Tipo-P (Isolante)</text>
+
+                <!-- Source & Drain (N-Type) -->
+                <rect x="80" y="100" width="60" height="40" fill="#0284c7"/>
+                <text x="95" y="125" fill="#fff" font-size="10">Source</text>
+                
+                <rect x="260" y="100" width="60" height="40" fill="#0284c7"/>
+                <text x="275" y="125" fill="#fff" font-size="10">Drain</text>
+
+                <!-- Gate Oxide & Gate Plate -->
+                <rect x="140" y="90" width="120" height="10" fill="#94a3b8"/> <!-- Ossido -->
+                <rect x="140" y="75" width="120" height="15" fill="#f59e0b" id="gate-plate"/> <!-- Gate Metal -->
+                <text x="185" y="87" fill="#000" font-size="10" font-weight="bold">GATE</text>
+
+                <!-- Filo Gate -->
+                <line x1="200" y1="20" x2="200" y2="75" stroke="#94a3b8" stroke-width="4" id="gate-wire"/>
+
+                <!-- Canale Conduttivo (Invisibile di default) -->
+                <rect x="140" y="100" width="120" height="15" fill="#38bdf8" id="channel" opacity="0"/>
+
+                <!-- Flusso Corrente -->
+                <path d="M 50 120 L 110 120 L 290 120 L 350 120" fill="none" stroke="#475569" stroke-width="4" id="current-path"/>
+            </svg>
+
+            <div style="margin-top: 15px;">
+                <button class="btn" onclick="setGate(0)">Gate = 0V (Spento)</button>
+                <button class="btn" onclick="setGate(5)">Gate = 5V (Acceso)</button>
+            </div>
+            <p id="transistor-status" style="font-weight: bold; margin-top: 10px;">Stato: Isolante. Nessuna corrente passa.</p>
+        </div>
+    </div>
+
+    <!-- SEZIONE 2: PORTE LOGICHE -->
+    <div class="section">
+        <h2>2. Le Porte Logiche Usate nei Circuiti</h2>
+        <p>I meccanismi interni delle porte usate nei circuiti successivi:</p>
+        
+        <div class="grid">
+            <div style="background:#0f172a; padding:15px; border-radius:8px;">
+                <h3>Porta AND</h3>
+                <p><strong>Meccanismo:</strong> Due transistor in serie. La corrente passa solo se <em>entrambi</em> i transistor hanno il Gate attivo ($1$).</p>
+                <p><strong>Regola:</strong> $1 \text{ AND } 1 = 1$, altrimenti $0$.</p>
+            </div>
+            <div style="background:#0f172a; padding:15px; border-radius:8px;">
+                <h3>Porta XOR (OR Esclusivo)</h3>
+                <p><strong>Meccanismo:</strong> Confronta due ingressi. Restituisce $1$ solo se gli ingressi sono <em>diversi</em> tra loro.</p>
+                <p><strong>Regola:</strong> $1 \text{ XOR } 0 = 1$, $1 \text{ XOR } 1 = 0$, $0 \text{ XOR } 0 = 0$.</p>
+            </div>
+            <div style="background:#0f172a; padding:15px; border-radius:8px;">
+                <h3>Porta NOT (Inverter)</h3>
+                <p><strong>Meccanismo:</strong> Un transistor che quando si attiva scarica il segnale a terra ($0$). Quando è spento, l'uscita rimane alta ($1$).</p>
+                <p><strong>Regola:</strong> Inverte il bit ($0 \rightarrow 1$, $1 \rightarrow 0$).</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SEZIONE 3: CIRCUITI INTERATTIVI -->
+    <div class="section">
+        <h2>3. Circuiti Logici Complessi</h2>
+        
+        <!-- HALF ADDER -->
+        <h3>A) Half Adder (Sommatore Binario)</h3>
+        <p>Calcola la somma ($A + B$). La porta <strong>XOR</strong> produce il bit di Somma, la porta <strong>AND</strong> produce il Riporto (Carry).</p>
+        <div class="interactive-box">
+            <div>
+                <button class="btn btn-toggle" id="ha-a" onclick="toggleHA('a')">Ingresso A: 0</button>
+                <button class="btn btn-toggle" id="ha-b" onclick="toggleHA('b')">Ingresso B: 0</button>
+            </div>
+            <div style="margin-top: 20px; text-align: center; font-size: 1.2rem;">
+                <span>Somma (XOR): <strong id="ha-sum" style="color:var(--accent);">0</strong></span> | 
+                <span>Riporto (AND): <strong id="ha-carry" style="color:var(--accent);">0</strong></span>
+            </div>
+        </div>
+
+        <hr style="border-color:#334155; margin: 30px 0;">
+
+        <!-- COMPARATORE MAGGIORE -->
+        <h3>B) Comparatore "Maggiore" ($A > B$)</h3>
+        <p>Determina se il bit $A$ è maggiore del bit $B$. Poiché lavoriamo a 1 bit, $A > B$ è vero solo se $A=1$ e $B=0$. Si usa una porta <strong>AND</strong> unita a una porta <strong>NOT</strong> ($A \text{ AND (NOT } B)$).</p>
+        <div class="interactive-box">
+            <div>
+                <button class="btn btn-toggle" id="comp-a" onclick="toggleComp('a')">A: 0</button>
+                <button class="btn btn-toggle" id="comp-b" onclick="toggleComp('b')">B: 0</button>
+            </div>
+            <div style="margin-top: 15px; font-size: 1.2rem;">
+                Risultato ($A > B$): <strong id="comp-res" style="color:var(--accent);">FALSO (0)</strong>
+            </div>
+        </div>
+
+        <hr style="border-color:#334155; margin: 30px 0;">
+
+        <!-- MULTIPLEXER -->
+        <h3>C) Multiplexer (Selettore 2-a-1)</h3>
+        <p>Sceglie quale tra due dati ($D0$ o $D1$) inviare in uscita, in base al segnale di <strong>Selezione (S)</strong>.</p>
+        <div class="interactive-box">
+            <div style="margin-bottom: 10px;">
+                <button class="btn btn-toggle" id="mux-d0" onclick="toggleMUX('d0')">Dato D0: 0</button>
+                <button class="btn btn-toggle" id="mux-d1" onclick="toggleMUX('d1')">Dato D1: 0</button>
+            </div>
+            <div>
+                <button class="btn" style="background:#f59e0b;" id="mux-s" onclick="toggleMUX('s')">Selettore (S): D0</button>
+            </div>
+            <div style="margin-top: 15px; font-size: 1.2rem;">
+                Uscita Finale: <strong id="mux-out" style="color:var(--accent);">0</strong>
+            </div>
+        </div>
+
+        <hr style="border-color:#334155; margin: 30px 0;">
+
+        <!-- FLIP-FLOP -->
+        <h3>D) Flip-Flop SR (1 Bit di Memoria)</h3>
+        <p>Usa il <strong>Retroeffetto (Feedback)</strong>: le uscite delle porte sono collegate agli ingressi opposti per "incastrare" il segnale e ricordare lo stato anche dopo che il comando cessa.</p>
+        <div class="interactive-box">
+            <div>
+                <button class="btn" style="background:#22c55e;" onclick="triggerFlipFlop('set')">Set (Salva 1)</button>
+                <button class="btn" style="background:#ef4444;" onclick="triggerFlipFlop('reset')">Reset (Salva 0)</button>
+            </div>
+            <div style="margin-top: 15px; font-size: 1.2rem;">
+                Stato Memorizzato (Q): <strong id="ff-state" style="color:var(--accent);">0</strong>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    // --- 1. TRANSISTOR LOGIC ---
+    function setGate(voltage) {
+        const channel = document.getElementById('channel');
+        const gatePlate = document.getElementById('gate-plate');
+        const gateWire = document.getElementById('gate-wire');
+        const currentPath = document.getElementById('current-path');
+        const status = document.getElementById('transistor-status');
+
+        if (voltage === 5) {
+            channel.setAttribute('opacity', '1');
+            gatePlate.setAttribute('fill', '#ef4444');
+            gateWire.setAttribute('stroke', '#ef4444');
+            currentPath.setAttribute('stroke', '#38bdf8');
+            currentPath.setAttribute('stroke-dasharray', '5,5');
+            currentPath.classList.add('electron');
+            status.innerHTML = "Stato: <span style='color:#38bdf8'>CONDUTTORE</span>. Il campo elettrico ha creato il canale. La corrente scorre da Source a Drain!";
+        } else {
+            channel.setAttribute('opacity', '0');
+            gatePlate.setAttribute('fill', '#f59e0b');
+            gateWire.setAttribute('stroke', '#94a3b8');
+            currentPath.setAttribute('stroke', '#475569');
+            currentPath.removeAttribute('stroke-dasharray');
+            currentPath.classList.remove('electron');
+            status.innerHTML = "Stato: ISOLANTE. Nessuna tensione al Gate, il canale è interrotto.";
+        }
+    }
+
+    // --- 3A. HALF ADDER LOGIC ---
+    let haA = 0, haB = 0;
+    function toggleHA(input) {
+        if(input === 'a') {
+            haA = haA === 0 ? 1 : 0;
+            document.getElementById('ha-a').innerText = `Ingresso A: ${haA}`;
+            document.getElementById('ha-a').classList.toggle('active');
+        } else {
+            haB = haB === 0 ? 1 : 0;
+            document.getElementById('ha-b').innerText = `Ingresso B: ${haB}`;
+            document.getElementById('ha-b').classList.toggle('active');
+        }
+        document.getElementById('ha-sum').innerText = haA ^ haB; // XOR
+        document.getElementById('ha-carry').innerText = haA & haB; // AND
+    }
+
+    // --- 3B. COMPARATORE MAGGIORE LOGIC ---
+    let compA = 0, compB = 0;
+    function toggleComp(input) {
+        if(input === 'a') {
+            compA = compA === 0 ? 1 : 0;
+            document.getElementById('comp-a').innerText = `A: ${compA}`;
+            document.getElementById('comp-a').classList.toggle('active');
+        } else {
+            compB = compB === 0 ? 1 : 0;
+            document.getElementById('comp-b').innerText = `B: ${compB}`;
+            document.getElementById('comp-b').classList.toggle('active');
+        }
+        // A > B e' vero solo se A=1 AND NOT(B)=1
+        const isGreater = (compA === 1 && compB === 0) ? 1 : 0;
+        document.getElementById('comp-res').innerText = isGreater ? "VERO (1)" : "FALSO (0)";
+    }
+
+    // --- 3C. MULTIPLEXER LOGIC ---
+    let muxD0 = 0, muxD1 = 0, muxS = 0;
+    function toggleMUX(type) {
+        if(type === 'd0') {
+            muxD0 = muxD0 === 0 ? 1 : 0;
+            document.getElementById('mux-d0').innerText = `Dato D0: ${muxD0}`;
+            document.getElementById('mux-d0').classList.toggle('active');
+        } else if(type === 'd1') {
+            muxD1 = muxD1 === 0 ? 1 : 0;
+            document.getElementById('mux-d1').innerText = `Dato D1: ${muxD1}`;
+            document.getElementById('mux-d1').classList.toggle('active');
+        } else if(type === 's') {
+            muxS = muxS === 0 ? 1 : 0;
+            document.getElementById('mux-s').innerText = `Selettore (S): D${muxS}`;
+        }
+        
+        const output = muxS === 0 ? muxD0 : muxD1;
+        document.getElementById('mux-out').innerText = output;
+    }
+
+    // --- 3D. FLIP-FLOP LOGIC ---
+    let ffState = 0;
+    function triggerFlipFlop(action) {
+        if (action === 'set') ffState = 1;
+        if (action === 'reset') ffState = 0;
+        document.getElementById('ff-state').innerText = ffState;
+    }
+</script>
+
+</body>
+</html>
